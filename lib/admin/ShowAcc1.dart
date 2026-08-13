@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 //import '../global/GetUnitName.dart';
 import '../global/MySQLService.dart';
 import '../global/ResponseMessage.dart';
-import '../global/globalVar.dart';
 import '../models/Account.dart';
 import '../models/UnitName.dart';
 import 'EditAccDetail.dart';

@@ -15,7 +15,7 @@ class LoginSuccessScreen extends StatelessWidget {
           style: styleCustom("", 28.0, Colors.white, true),
         ),
       ),
-      body: Body(),
+      body: Padding(padding: const EdgeInsets.all(16.0), child: Body()),
     );
   }
 }

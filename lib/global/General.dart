@@ -1,4 +1,3 @@
-import 'package:budget_mobile/global/globalVar.dart';
 import 'package:flutter/material.dart';
 
 class General {

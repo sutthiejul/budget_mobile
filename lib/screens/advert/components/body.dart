@@ -8,7 +8,6 @@ import '../../../global/size_config.dart';
 
 // This is the best practice
 import '../components/splash_content.dart';
-import '../../../components/default_button.dart';
 import '../../../styles/colors.dart';
 
 class Body extends StatefulWidget {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../screens/sign_up/sign_up_screen.dart';
 import 'package:budget_mobile/global/ResponseMessage.dart';
 import '../global//constants.dart';
 import '../global/size_config.dart';

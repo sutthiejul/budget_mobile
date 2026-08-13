@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:budget_mobile/admin/ShowAccDetail.dart';
 import 'package:budget_mobile/budget/ShowStartBook.dart';
-//import 'package:budget_mobile/budget/ReceiveExpedite.dart.bak';
 import 'package:budget_mobile/styles/colors.dart';
 import 'package:flutter/material.dart';
 import '../MainPage.dart';
-//import '../budget/SendExpediteTo.dart.bak';
 //import '../TestSJComponet.dart';
 import '../budget/ShowExpedite.dart';
 //import '../budget/ShowExpediteOwn.dart';
@@ -46,7 +42,7 @@ class SideMenuLeft extends StatelessWidget {
   // box = await Hive.openBox('LoginData');
   // box.put('aid', dat["aid"]);
   // box.put('userid', dat['userid']);
-  // box.put('uid', dat['uid']);
+  // box.put('uid', dat['Uint']);
   // box.put('fullname', dat['fullname']);
   // box.put('email', dat['email']);
   // box.put('status', dat["status"]);
@@ -80,31 +76,10 @@ class SideMenuLeft extends StatelessWidget {
     MySQLDB mysql = MySQLDB();
     ResponseMessage resp = new ResponseMessage();
 
-    mysql.VerifyTokenExpireBearer(login.get('token')!, SecretKey).then((
-      result,
-    ) async {
-      if (result.trim() != "") {
-        var ret = json.decode(result.trim());
-        // check data return
-        print("Status Token Return : " + ret['status']);
-
-        if (ret != null) {
-          if (ret['status'] == "expired") {
-            //print("Token Expired !!!");
-            resp.Alert(context, "Session Expired", "Token หมดอายุ !!!");
-            mysql.delay(2, () => mysql.redirectSignIn(context));
-            //mysql.redirectSignIn(context);
-          } else if (ret['status'] == "error") {
-            //print("Token Error !!!");
-            resp.Alert(context, "Token Error", "Token Error !!!");
-            mysql.delay(2, () => mysql.redirectSignIn(context));
-          }
-        }
-      } else {
-        // no have return value
-        resp.Alert(context, "ไม่พบข้อมูล token", "Token Nothing !!!");
-        //print("Token Nothing !!!");
-
+    mysql.VerifyTokenExpireJ6(login.get('token')!).then((result) async {
+      if (result.trim() == "") {
+        // token expire or invalid
+        resp.Alert(context, "Session Expired or Invalid", "Token หมดอายุ !!!");
         mysql.delay(2, () => mysql.redirectSignIn(context));
       }
     });

@@ -1,5 +1,4 @@
 import 'dart:async';
-import '../../global/size_config.dart';
 import '../advert/AdvertScreen.dart';
 import 'package:flutter/material.dart';
 import '../../styles/colors.dart';
@@ -23,11 +22,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void onTimerFinished() {
-    Navigator.of(context).pushReplacement(new MaterialPageRoute(
-      builder: (BuildContext context) {
-        return AdvertScreen();
-      },
-    ));
+    Navigator.of(context).pushReplacement(
+      new MaterialPageRoute(
+        builder: (BuildContext context) {
+          return AdvertScreen();
+        },
+      ),
+    );
   }
 
   @override
@@ -35,9 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: bgcolorApp,
-      body: Center(
-        child: splashScreenIcon(context),
-      ),
+      body: Center(child: splashScreenIcon(context)),
     );
   }
 }

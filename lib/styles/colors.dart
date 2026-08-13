@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/theme/theme_provider.dart';
 
 const primaryColor = Color(0xff53B175);
 const darkGrey = Color.fromARGB(255, 192, 39, 39);
@@ -15,8 +16,8 @@ final Color bluelight300 = Colors.lightBlue.shade300;
 
 //final Color bgcolorApp = bluelight;
 //final Color bgcolorApp = bluelight100;
-final Color bgcolorApp = Colors.purple.shade700;
-final Color bgcolorTitlebar = Colors.purple.shade300;
+Color get bgcolorApp => ThemeProvider.activeBgcolorApp;
+Color get bgcolorTitlebar => ThemeProvider.activeBgcolorTitlebar;
 
 final Color bgcolorIcon = yellow;
 final Color bgcolorProduct = white;

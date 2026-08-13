@@ -64,7 +64,6 @@ class Body extends StatelessWidget {
     final TxtField_cntIncome = TextField(
       controller: txtIncome,
       readOnly: true,
-      //enabled: false,
       textAlign: TextAlign.center,
       style: styleLabel,
       decoration: InputDecoration(
@@ -74,28 +73,17 @@ class Body extends StatelessWidget {
         contentPadding: const EdgeInsets.all(3),
       ),
       onTap: () {
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => ShowReceiveExpedite(uid)),
-        // );
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => ShowReceiveExpedite(uid)),
           (Route<dynamic> route) => false,
         );
-
-        // Navigator.of(context).pushNamedAndRemoveUntil(
-        //   '/showrxexp',
-        //   (Route<dynamic> route) => false,
-        // );
       },
     );
 
     final TxtField_cntSend = TextField(
       controller: txtcntSend,
       readOnly: true,
-      //enabled: false,
       textAlign: TextAlign.center,
       style: styleLabel,
       decoration: InputDecoration(
@@ -105,11 +93,6 @@ class Body extends StatelessWidget {
         contentPadding: const EdgeInsets.all(3),
       ),
       onTap: () {
-        // Navigator.of(context).pushNamedAndRemoveUntil(
-        //   '/showrxexp',
-        //   (Route<dynamic> route) => false,
-        // );
-
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => ShowReceiveExpedite(uid)),
@@ -118,97 +101,65 @@ class Body extends StatelessWidget {
       },
     );
 
-    return Column(
-      children: [
-        SizedBox(height: SizeConfig.screenHeight * 0.04),
-        Image.asset(
-          "assets/images/success.png",
-          height: SizeConfig.screenHeight * 0.4, //40%
-        ),
-        SizedBox(height: SizeConfig.screenHeight * 0.08),
-        Text(
-          "Login Success",
-          style: TextStyle(
-            fontSize: getProportionateScreenWidth(30),
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // SizedBox(height: SizeConfig.screenHeight * 0.04),
+          Image.asset(
+            "assets/images/success.png",
+            height: SizeConfig.screenHeight * 0.4, //40%
           ),
-        ),
-        Spacer(),
-        Column(
-          children: [
-            Text(
-              "มีงานยังไม่ได้รับ",
-              style: TextStyle(
-                fontSize: getProportionateScreenWidth(18),
-                fontWeight: FontWeight.bold,
-                color: Colors.yellow,
-              ),
+          // SizedBox(height: SizeConfig.screenHeight * 0.08),
+          Text(
+            "Login Success",
+            style: TextStyle(
+              fontSize: getProportionateScreenWidth(30),
+              fontWeight: FontWeight.bold,
+              color: Colors.blueAccent.shade700,
             ),
-          ],
-        ),
-        Column(children: [TxtField_cntIncome]),
-        Spacer(),
-        Column(
-          children: [
-            Text(
-              "มีงานยังไม่ได้ส่ง",
-              style: TextStyle(
-                fontSize: getProportionateScreenWidth(18),
-                fontWeight: FontWeight.bold,
-                color: Colors.lightGreenAccent,
-              ),
-            ),
-          ],
-        ),
-        Column(children: [TxtField_cntSend]),
-        Spacer(),
-        SizedBox(
-          width: SizeConfig.screenWidth * 0.6,
-          child: DefaultButton(
-            text: "ไปหน้าหลัก",
-            press: () {
-              // if (login.get('status') == '1')
-              //   ListTile(
-              //     leading: const Icon(Icons.manage_accounts),
-              //     title: const Text('บริหารระบบ'),
-              //     onTap: () => {
-              //       //Navigator.of(context).pop()
-              //       Navigator.push(
-              //         context,
-              //         MaterialPageRoute(
-              //           builder: (context) => AdminSystem(),
-              //         ),
-              //       ),
-              //     },
-              //   ),
-
-              if (login.get('status') == '1')
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainPageAdmin()),
-                );
-              else
-                Navigator.pushReplacementNamed(context, MainPage.routeName);
-              //Navigator.pushNamed(context, MainPage.routeName);
-
-              // Navigator.pushReplacement(
-              //     context,
-              //     MaterialPageRoute(
-              //       builder: (context) => ShowStartBook(),
-              //     ),
-              // );
-
-              // Navigator.pushReplacement(context,
-              //     MaterialPageRoute(builder: (context) => MainPage()));
-
-              //Navigator.of(context).pop();
-              //  Navigator.of(context).pushNamedAndRemoveUntil(MainPage.routeName, (Route<dynamic> route) => false);
-            },
           ),
-        ),
-        Spacer(),
-      ],
+          SizedBox(height: SizeConfig.screenHeight * 0.01),
+          Text(
+            "มีงานยังไม่ได้รับ",
+            style: TextStyle(
+              fontSize: getProportionateScreenWidth(18),
+              fontWeight: FontWeight.bold,
+              color: Colors.yellow,
+            ),
+          ),
+          SizedBox(height: 8),
+          TxtField_cntIncome,
+          SizedBox(height: SizeConfig.screenHeight * 0.01),
+          Text(
+            "มีงานยังไม่ได้ส่ง",
+            style: TextStyle(
+              fontSize: getProportionateScreenWidth(18),
+              fontWeight: FontWeight.bold,
+              color: Colors.lightGreenAccent,
+            ),
+          ),
+          SizedBox(height: 8),
+          TxtField_cntSend,
+          SizedBox(height: SizeConfig.screenHeight * 0.01),
+          SizedBox(
+            width: SizeConfig.screenWidth * 0.6,
+            child: DefaultButton(
+              text: "ไปหน้าหลัก",
+              press: () {
+                if (login.get('status') == '1')
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainPageAdmin()),
+                  );
+                else
+                  Navigator.pushReplacementNamed(context, MainPage.routeName);
+              },
+            ),
+          ),
+          SizedBox(height: SizeConfig.screenHeight * 0.03),
+        ],
+      ),
     );
   }
 }

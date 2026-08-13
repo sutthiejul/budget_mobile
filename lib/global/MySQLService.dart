@@ -134,7 +134,7 @@ class MySQLDB {
 
   //=========================================================
   Future<String> chkLoginToken(String uid, String pwd) async {
-    String url = "http://$ipAddress/FlutterBudget/FlutterLoginV2.php";
+    String url = "http://$ipAddress/FlutterBudget/FlutterLogin.php";
 
     var loginDat = <String, dynamic>{};
     loginDat['userid'] = uid;
@@ -339,6 +339,83 @@ class MySQLDB {
       ret = response.toString();
     }
     return ret;
+  }
+
+  //============Security J6==========================================
+  Future<String> chkLoginTokenJ6(String uid, String pwd) async {
+    String url = "http://$ipAddress/FlutterBudget/FlutterLogin.php";
+
+    var loginDat = <String, dynamic>{};
+    loginDat['userid'] = uid;
+    loginDat['password'] = pwd;
+
+    var jsonLogin = json.encode(loginDat);
+
+    var ret;
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Accept": "application/json"},
+        body: jsonLogin,
+      );
+
+      print(
+        "response.body : " + response.body.trim(),
+      ); // check the status code for the result
+
+      if (response.statusCode == 200) {
+        String dat = response.body.trim();
+
+        if (dat != "") {
+          try {
+            final acc = json.decode(dat);
+            return json.encode(acc);
+          } catch (e) {
+            print("error :" + e.toString());
+
+            ret = {"errMsg": e.toString()};
+            return json.encode(ret);
+          }
+        } else {
+          ret = {"errMsg": "Empty response from server"};
+          return json.encode(ret);
+        }
+      } else {
+        ret = {"errMsg": "HTTP error: ${response.statusCode}"};
+        return json.encode(ret);
+      }
+    } catch (e) {
+      print("error :" + e.toString());
+      ret = {"errMsg": e.toString()};
+      return json.encode(ret);
+    }
+  }
+
+  //=========================================================
+  // start php : php -S 10.130.230.21:80
+
+  Future<String> VerifyTokenExpireJ6(String token) async {
+    String ret = "";
+    //print("Token : " + token + " | Secretkey " + SecretKey);
+    print("Token : " + token);
+
+    String url =
+        "http://$ipAddress/FlutterBudget/token_rtarf/authen_rtarf_check.php";
+
+    final response = await http.post(Uri.parse(url), body: {'token': token});
+
+    if (response.statusCode == 200) {
+      print("response : " + response.body.trim());
+
+      if (response.body.trim() != "") {
+        ret = response.body.trim();
+
+        return ret;
+      } else
+        return ret;
+    } else
+      return ret;
   }
 
   //=========================================================

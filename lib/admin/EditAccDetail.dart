@@ -156,13 +156,6 @@ class _EditAccDetailState extends State<EditAccDetail> {
       color: Colors.brown,
     );
 
-    TextStyle styleHead2 = const TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 16.0,
-      fontWeight: FontWeight.bold,
-      color: Colors.red,
-    );
-
     TextStyle styleNormal = const TextStyle(
       fontFamily: 'Montserrat',
       fontSize: 16.0,

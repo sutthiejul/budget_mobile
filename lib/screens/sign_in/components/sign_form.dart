@@ -7,11 +7,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
 import '../../../global/GetUnitName.dart';
-import '../../../helper/keyboard.dart';
-import '../../../screens/forgot_password/forgot_password_screen.dart';
 import '../../../screens/login_success/login_success_screen.dart';
 import '../../login_success/login_false_screen.dart';
-import '../../../components/default_button.dart';
 import '../../../global/constants.dart';
 import '../../../global/size_config.dart';
 import '../../../global/globalVar.dart';
@@ -175,7 +172,7 @@ class _SignFormState extends State<SignForm> {
 
                 //check in database by Rest API PHP
 
-                mysql.chkLoginToken(userid!, password!).then((result) async {
+                mysql.chkLoginTokenJ6(userid!, password!).then((result) async {
                   String msg = "";
 
                   if (result.trim() == "") {
@@ -196,17 +193,9 @@ class _SignFormState extends State<SignForm> {
                     //print("Result Authen : ${msg}");
 
                     var dat = json.decode(result.trim());
-                    //check if data return not blank
-                    // but need show error from coneection
-                    //return "{errMsg : " + e.toString() + "}";
+
                     if (dat["errMsg"] != null) {
                       if (dat["errMsg"] != "") {
-                        // Navigator.pushNamed(context, LoginFalseScreen.routeName,
-                        //   arguments: <String, String>{
-                        //     'errMsg': dat["errMsg"],
-                        //   },
-                        // );
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -220,32 +209,22 @@ class _SignFormState extends State<SignForm> {
                       }
                     }
 
-                    // from Node.js Server
-                    //   ret = {
-                    //   "aid": aid,
-                    //   "userid": userid,
-                    //   "status": status,
-                    //   "token": token
-                    // };
-
-                    //Token = dat["token"];
-                    //UserID = dat["userid"];
-                    //Email = dat["email"];
-                    //Aid = dat["aid"];
-
                     //=================set Hive for Global Data===================
                     await Hive.initFlutter();
                     box = await Hive.openBox('LoginData');
                     box.put('aid', dat["aid"]);
                     box.put('userid', dat['userid']);
-                    box.put('uid', dat['uid']);
-                    box.put('fullname', dat['fullname']);
+                    box.put('uid', dat['Uint']);
+                    box.put(
+                      'fullname',
+                      dat['firstname'] + " " + dat['lastname'],
+                    );
                     box.put('mobile', dat['mobile']);
                     box.put('email', dat['email']);
                     box.put('status', dat["status"]);
                     box.put('token', dat["token"]);
                     //=================Get Unitname===============================
-                    String uid = dat['uid'];
+                    String uid = dat['Uint'];
                     var unit =
                         GetUnitName(); // create obj from class GetUnitName
                     //unitStr = unit.GetUnitStr(uid).toString();

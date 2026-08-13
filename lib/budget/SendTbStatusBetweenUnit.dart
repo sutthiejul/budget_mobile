@@ -1297,7 +1297,7 @@ class _SendTbStatusBetweenUnitState extends State<SendTbStatusBetweenUnit> {
       //resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
-          "หน่วยต้นเรื่องเริ่มบันทึก",
+          "หน่วยเตรียมส่งเรื่อง",
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -1560,34 +1560,45 @@ class _SendTbStatusBetweenUnitState extends State<SendTbStatusBetweenUnit> {
                         backgroundColor: lightyellow2,
                       ),
                       onPressed: () async {
-                        //print("Open Attached File: " + FileNameOriginal);
+                        if (FileNameOriginal.isEmpty) {
+                          snackMsg.showSnackBarMsg('ไม่พบไฟล์แนบ', context);
+                          return;
+                        }
 
-                        url =
-                            "http://$ipAddress/$Budget_Site/Follow/doc/$FileNameOriginal";
+                        final urlPath =
+                            'http://$ipAddress/$Budget_Site/Follow/doc/';
+                        final fileUrl = '$urlPath$FileNameOriginal';
+                        final ext =
+                            FileNameOriginal.split('.').last.toLowerCase();
 
-                        //final uri = Uri.parse('https://www.google.co.th');
+                        const imageExt = {
+                          'png',
+                          'jpg',
+                          'jpeg',
+                          'gif',
+                          'bmp',
+                          'webp',
+                          'svg',
+                        };
 
-                        /*
-                              http://10.130.230.64/index.htm
-                              https://www.google.co.th
-                        */
-
-                        // openRemoteFile(url);
-
-                        // Uri uri = Uri.parse(url);
-                        // print("Url File: " + url);
-
-                        // String encodedUrl = Uri.encodeQueryComponent(url);
-                        // print("Encode Url File: " + encodedUrl);
-
-                        // checck $FileNameOriginal if is pdf open pdf
-                        // if is picture open new page
-                        // if is other doc ppt xls confirm download? not view
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ViewPDF(url)),
-                        );
+                        try {
+                          if (ext == 'pdf') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ViewPDF(fileUrl),
+                              ),
+                            );
+                          } else if (imageExt.contains(ext)) {
+                            // Let the browser render supported images
+                            await open.launchURL(urlPath, FileNameOriginal);
+                          } else {
+                            // Other docs: trigger browser download
+                            await open.launchURL(urlPath, FileNameOriginal);
+                          }
+                        } catch (e) {
+                          snackMsg.showSnackBarMsg(e.toString(), context);
+                        }
                       },
                       child: Text(
                         FileNameOriginal,

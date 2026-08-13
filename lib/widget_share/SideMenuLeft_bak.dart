@@ -5,7 +5,6 @@ import '../MainPage.dart';
 import '../budget/ShowExpedite.dart';
 import '../global/ManageLogin.dart';
 // import 'package:hive_flutter/hive_flutter.dart';
-import '../chat/ChatPerson.dart';
 // import '../admin/ShowAcc.dart';
 // import '../screens/advert/AdvertScreen.dart';
 import '../screens/sign_in/sign_in_screen.dart';
@@ -39,7 +38,7 @@ class SideMenuLeft extends StatelessWidget {
   // box.put('email', dat['email']);
   // box.put('status', dat["status"]);
   // box.put('token', dat["token"]);
-//============================================================
+  //============================================================
 
   String getStatusUser(String i) {
     String str = "";
@@ -94,16 +93,16 @@ class SideMenuLeft extends StatelessWidget {
                         //"สถานะ : ${login.get('status')}",
                         "สถานะ : ${getStatusUser(login.get('status'))}",
                         //textAlign: TextAlign.start,
-                        style:
-                            TextStyle(color: Colors.cyan.shade50, fontSize: 15),
+                        style: TextStyle(
+                          color: Colors.cyan.shade50,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              decoration: BoxDecoration(
-                color: bgcolorApp,
-              ),
+              decoration: BoxDecoration(color: bgcolorApp),
             ),
             ListTile(
               leading: const Icon(Icons.home),
@@ -111,19 +110,22 @@ class SideMenuLeft extends StatelessWidget {
                 'หน้าหลัก',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                //Navigator.of(context).pop()
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => MainPage(),
-                //     //builder: (context) => MainScreen(),
-                //     //builder: (context) => AdvertScreen(),
-                //   ),
-                // ),
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    MainPage.routeName, (Route<dynamic> route) => false),
-              },
+              onTap:
+                  () => {
+                    //Navigator.of(context).pop()
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => MainPage(),
+                    //     //builder: (context) => MainScreen(),
+                    //     //builder: (context) => AdvertScreen(),
+                    //   ),
+                    // ),
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      MainPage.routeName,
+                      (Route<dynamic> route) => false,
+                    ),
+                  },
             ),
 
             /*
@@ -148,17 +150,19 @@ class SideMenuLeft extends StatelessWidget {
                 'ข้อมูลแอคเค้าท์',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                //Navigator.of(context).pop()
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    //builder: (context) => ShowAccountDetail(login.get('aid')),
-                    builder: (context) => ShowAccountDetail(login.get('aid')),
-                    //builder: (context) => ShowAccount(),
-                  ),
-                ),
-              },
+              onTap:
+                  () => {
+                    //Navigator.of(context).pop()
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        //builder: (context) => ShowAccountDetail(login.get('aid')),
+                        builder:
+                            (context) => ShowAccountDetail(login.get('aid')),
+                        //builder: (context) => ShowAccount(),
+                      ),
+                    ),
+                  },
             ),
             ListTile(
               leading: const Icon(Icons.border_color),
@@ -166,15 +170,14 @@ class SideMenuLeft extends StatelessWidget {
                 'ข้อมูลงบประมาณ',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                //Navigator.of(context).pop()
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ShowExpedite(),
-                  ),
-                ),
-              },
+              onTap:
+                  () => {
+                    //Navigator.of(context).pop()
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ShowExpedite()),
+                    ),
+                  },
             ),
             ListTile(
               leading: const Icon(Icons.chat),
@@ -182,17 +185,18 @@ class SideMenuLeft extends StatelessWidget {
                 'คุยกัน',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                //Navigator.of(context).pop()
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => ChatPerson(
-                //       title: '',
-                //     ),
-                //   ),
-                // ),
-              },
+              onTap:
+                  () => {
+                    //Navigator.of(context).pop()
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => ChatPerson(
+                    //       title: '',
+                    //     ),
+                    //   ),
+                    // ),
+                  },
             ),
 
             // if (login.get('status') == '1')
@@ -209,23 +213,25 @@ class SideMenuLeft extends StatelessWidget {
             //       ),
             //     },
             //   ),
-
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text(
                 'Logout',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => SignInScreen(),
-                //   ),
-                // ),
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    SignInScreen.routeName, (Route<dynamic> route) => false),
-              },
+              onTap:
+                  () => {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => SignInScreen(),
+                    //   ),
+                    // ),
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      SignInScreen.routeName,
+                      (Route<dynamic> route) => false,
+                    ),
+                  },
             ),
             ListTile(
               leading: Icon(Icons.run_circle),
@@ -233,14 +239,13 @@ class SideMenuLeft extends StatelessWidget {
                 'TestUploadFile',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TestUploadFile(),
-                  ),
-                ),
-              },
+              onTap:
+                  () => {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TestUploadFile()),
+                    ),
+                  },
             ),
             ListTile(
               leading: Icon(Icons.run_circle),
@@ -248,14 +253,15 @@ class SideMenuLeft extends StatelessWidget {
                 'TestUploadFile1',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TestUploadFile1(),
-                  ),
-                ),
-              },
+              onTap:
+                  () => {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TestUploadFile1(),
+                      ),
+                    ),
+                  },
             ),
             ListTile(
               leading: Icon(Icons.run_circle),
@@ -263,14 +269,13 @@ class SideMenuLeft extends StatelessWidget {
                 'Test Form File Upload',
                 style: TextStyle(color: Colors.brown, fontSize: 18),
               ),
-              onTap: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TestFormFileUp(),
-                  ),
-                ),
-              },
+              onTap:
+                  () => {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TestFormFileUp()),
+                    ),
+                  },
             ),
           ],
         ),

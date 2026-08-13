@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import '../MainPage.dart';
 import '../global/ManageLogin.dart';
 import '../global/MySQLService.dart';
-import '../global/globalVar.dart';
 import '../global/ResponseMessage.dart';
 import '../global/GetYearBudget.dart';
 import 'ReceiveExpedite.dart';

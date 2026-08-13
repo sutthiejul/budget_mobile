@@ -187,53 +187,56 @@ class DateTimes {
   {
     List<String> date_tmp = dates.split(" ");
 
-    String day_str = date_tmp[0];
+    String day_str = date_tmp[0].padLeft(2, '0');
+    ;
     String month_str = date_tmp[1];
+    String month_str_num = "";
+
     int yearn = int.parse(date_tmp[2]) - 543;
 
-    int monthn = 0;
+    // int monthn = 0;
 
     switch (month_str) {
       case "ม.ค.":
-        monthn = 1;
+        month_str_num = "01";
         break;
       case "ก.พ.":
-        monthn = 2;
+        month_str_num = "02";
         break;
       case "มี.ค.":
-        monthn = 3;
+        month_str_num = "03";
         break;
       case "เม.ย.":
-        monthn = 4;
+        month_str_num = "04";
         break;
       case "พ.ค.":
-        monthn = 5;
+        month_str_num = "05";
         break;
       case "มิ.ย.":
-        monthn = 6;
+        month_str_num = "06";
         break;
       case "ก.ค.":
-        monthn = 7;
+        month_str_num = "07";
         break;
       case "ส.ค.":
-        monthn = 8;
+        month_str_num = "08";
         break;
       case "ก.ย.":
-        monthn = 9;
+        month_str_num = "09";
         break;
       case "ต.ค.":
-        monthn = 10;
+        month_str_num = "10";
         break;
       case "พ.ย.":
-        monthn = 11;
+        month_str_num = "11";
         break;
       case "ธ.ค.":
-        monthn = 12;
+        month_str_num = "12";
         break;
     }
     //==============================
 
-    String dateRet = yearn.toString() + "-" + monthn.toString() + "-" + day_str;
+    String dateRet = yearn.toString() + "-" + month_str_num + "-" + day_str;
 
     return dateRet;
   }
@@ -392,12 +395,65 @@ class DateTimes {
   //holidayData['dates'],
   // );
 
+  DateTime? _parseFlexibleDate(String raw) {
+    if (raw.trim().isEmpty) return null;
+
+    final candidates = [raw.trim()];
+
+    // If Thai month text is present, try converting via existing helper.
+    if (MonthTh.any((m) => raw.contains(m)) ||
+        MonthThFull.any((m) => raw.contains(m))) {
+      try {
+        final iso = ConvDateThaiToDateDB(raw);
+        candidates.add(iso);
+      } catch (_) {}
+    }
+
+    for (final c in candidates) {
+      // 1) Native ISO parser
+      try {
+        return DateTime.parse(c);
+      } catch (_) {}
+
+      // 2) Common numeric formats (including single-digit day/month variants)
+      for (final pattern in [
+        'dd-MM-yyyy',
+        'dd/MM/yyyy',
+        'd-M-yyyy',
+        'd/M/yyyy',
+        'd-MM-yyyy',
+        'd/MM/yyyy',
+        'yyyy-MM-dd',
+        'yyyy/MM/dd',
+        'yyyy-M-d',
+        'yyyy/M/d',
+        'yyyy-MM-d',
+        'yyyy-M-dd',
+      ]) {
+        try {
+          return DateFormat(pattern).parseStrict(c);
+        } catch (_) {}
+      }
+    }
+
+    return null;
+  }
+
   String LastDate(
     String dstart,
     int workingDaysNeeded,
     List<dynamic> holidayArrStr,
   ) {
     workingDaysNeeded += 1;
+
+    // if (workingDaysNeeded <= 0) return "Error";
+
+    // final parsedDate = _parseFlexibleDate(dstart);
+    // if (parsedDate == null) {
+    //   return "Error: Invalid Date";
+    // }
+
+    // DateTime currentDate = parsedDate;
 
     if (workingDaysNeeded <= 0) return "Error";
 

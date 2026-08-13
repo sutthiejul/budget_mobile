@@ -23,6 +23,7 @@ import '../widget_share/SnackBarMsg.dart';
 
 import '../widget_share/ViewPDF.dart';
 import '../download/OpenUrlBrowser.dart';
+import '../global/GetHoliday.dart';
 
 var login;
 
@@ -92,6 +93,8 @@ class _StartExpediteUserState extends State<StartExpediteUser> {
 
   List<String> itemSecret = ['ปกติ', 'ลับ', 'ลับมาก', 'ลับที่สุด'];
   List<String> itemAcc = ['ปกติ', 'ด่วน', 'ด่วนมาก', 'ด่วนที่สุด'];
+
+  final GetHoliday holidayService = GetHoliday();
 
   //=====Controller Text===========
   // show only
@@ -168,7 +171,7 @@ class _StartExpediteUserState extends State<StartExpediteUser> {
 
     //======init Date to TextField========
     DateString = dtClass.DateThaiNow();
-    txtDate.text = DateString; // show date send set to now
+    txtDateStart.text = DateString; // show date send set to now
     //=====tbl_book_unit====
     mydb
         .getBookIdJob(
@@ -186,17 +189,17 @@ class _StartExpediteUserState extends State<StartExpediteUser> {
             );
 
             //=====timeline job====
-            if (result.date_start.toString() == "-0001-11-30 00:00:00.000")
-              txtDateStart.text = "0000-00-00";
-            else
-              txtDateStart.text = result.date_start.toString();
+            // if (result.date_start.toString() == "-0001-11-30 00:00:00.000")
+            //   txtDateStart.text = "0000-00-00";
+            // else
+            //   txtDateStart.text = result.date_start.toString();
 
-            if (result.date_stop.toString() == "-0001-11-30 00:00:00.000")
-              txtDateStop.text = "0000-00-00";
-            else
-              txtDateStop.text = result.date_stop.toString();
+            // if (result.date_stop.toString() == "-0001-11-30 00:00:00.000")
+            //   txtDateStop.text = "0000-00-00";
+            // else
+            //   txtDateStop.text = result.date_stop.toString();
 
-            txtDays.text = result.days.toString();
+            // txtDays.text = result.days.toString();
 
             txtAmout.text = FormatMoney.formatCurrencyfromDouble(
               double.parse(result.amout.toString()),
@@ -218,6 +221,35 @@ class _StartExpediteUserState extends State<StartExpediteUser> {
             });
           }
         });
+
+    // _focus_ddl_status_detail.addListener(() {
+    //   // Run calculation only when the field loses focus (focus out)
+    //   if (!_focus_ddl_status_detail.hasFocus) {
+    //     if (txtDateStart.text.isNotEmpty &&
+    //         txtDays.text != '0' &&
+    //         txtDateStart.text.isNotEmpty) //&& txtDateStart.text != "0000-00-00"
+    //     {
+    //       //=====get holiday in year======
+    //       String day_end;
+
+    //       holidayService
+    //           .getAllHoliday(yearNow.toString())
+    //           .then((holidayData) {
+    //             day_end = dtClass.LastDate(
+    //               dtClass.ConvertDateThaitoDB(txtDateStart.text),
+    //               int.parse(txtDays.text),
+    //               holidayData['dates'],
+    //             );
+    //             setState(() {
+    //               txtDateStop.text = dtClass.ConvertDateThai(day_end);
+    //             });
+    //           })
+    //           .catchError((error) {
+    //             print('Failed to load holiday data: $error');
+    //           });
+    //     }
+    //   }
+    // });
 
     AllTextControllerinWidget = [
       txtListName,
@@ -728,6 +760,35 @@ class _StartExpediteUserState extends State<StartExpediteUser> {
           sel_status_job_detail = value!;
           txt_status_job_detail = itemStatusJobDetail[int.parse(value)];
           txtDays.text = itemStatusJobDetailDay[int.parse(value)].toString();
+          // calculate date_stop
+
+          if (!_focus_ddl_status_detail.hasFocus) {
+            if (txtDateStart.text.isNotEmpty &&
+                txtDays.text != '0' &&
+                txtDateStart
+                    .text
+                    .isNotEmpty) //&& txtDateStart.text != "0000-00-00"
+            {
+              //=====get holiday in year======
+              String day_end;
+
+              holidayService
+                  .getAllHoliday(yearNow.toString())
+                  .then((holidayData) {
+                    day_end = dtClass.LastDate(
+                      dtClass.ConvertDateThaitoDB(txtDateStart.text),
+                      int.parse(txtDays.text),
+                      holidayData['dates'],
+                    );
+                    setState(() {
+                      txtDateStop.text = dtClass.ConvertDateThai(day_end);
+                    });
+                  })
+                  .catchError((error) {
+                    print('Failed to load holiday data: $error');
+                  });
+            }
+          }
         });
       },
       //hint: Text("เลือกปีงบประมาณ"),
@@ -1311,24 +1372,24 @@ class _StartExpediteUserState extends State<StartExpediteUser> {
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 85,
-                      child: Text(
-                        'วันที่ส่งเรื่อง : ',
-                        style: styleSmalless(black),
-                      ),
-                    ),
-                    Container(
-                      width: SizeConfig.screenWidth * 0.7,
-                      child: txtdate,
-                    ),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(2.0),
+              //   child: Row(
+              //     children: [
+              //       Container(
+              //         width: 85,
+              //         child: Text(
+              //           'วันที่ส่งเรื่อง : ',
+              //           style: styleSmalless(black),
+              //         ),
+              //       ),
+              //       Container(
+              //         width: SizeConfig.screenWidth * 0.7,
+              //         child: txtdate,
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: Row(

@@ -16,17 +16,13 @@ class SJDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
       ),
-      value: value,
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
+      initialValue: value,
+      items:
+          items.map((String item) {
+            return DropdownMenuItem<String>(value: item, child: Text(item));
+          }).toList(),
       onChanged: onChanged,
     );
   }

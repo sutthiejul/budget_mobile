@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:dio/dio.dart';
@@ -32,8 +31,9 @@ class UploadFileClass {
         "file": await MultipartFile.fromFile(filepath.path, filename: fileName),
       });
       Response response = await Dio().post(
-          "http://$ipAddress/FlutterBudget/UploadFile.php",
-          data: formData);
+        "http://$ipAddress/FlutterBudget/UploadFile.php",
+        data: formData,
+      );
       print("file upload response:$response");
       return response.toString();
     } catch (e) {
@@ -97,7 +97,7 @@ class UploadFileClass {
 
       var ret = {
         "result": "false",
-        "msg": "เกิดความผิดพลาดในการอัพโหลดไฟล์ : ${e.message}"
+        "msg": "เกิดความผิดพลาดในการอัพโหลดไฟล์ : ${e.message}",
       };
       return ret.toString();
     }
@@ -116,10 +116,12 @@ class UploadFileClass {
         // "age": 49,
         "file": await MultipartFile.fromFile(filepath.path, filename: fileName),
       });
-      Response response = await Dio(BaseOptions(
-        contentType: 'application/json',
-        responseType: ResponseType.plain,
-      )).post(url, data: formData);
+      Response response = await Dio(
+        BaseOptions(
+          contentType: 'application/json',
+          responseType: ResponseType.plain,
+        ),
+      ).post(url, data: formData);
 
       print("file upload response:$response");
       return response.toString();

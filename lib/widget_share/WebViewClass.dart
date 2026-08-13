@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../styles/TextStyle.dart';
 import '../styles/colors.dart';
-import '../global/globalVar.dart';
-import '../global/MySQLService.dart';
 
 class WebViewClass extends StatefulWidget {
   //const ShowAccountDetail({Key? key}) : super(key: key);
@@ -38,12 +36,12 @@ class _WebViewClassState extends State<WebViewClass> {
       //enabled: false,
       style: styleNormal(red),
       decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          filled: true,
-          fillColor: Colors.white,
-          hintText: "FirstName",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(20.0))),
+        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        filled: true,
+        fillColor: Colors.white,
+        hintText: "FirstName",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+      ),
       onTap: () {
         //FocusScope.of(context).requestFocus(_focus);
         // _nextFocus2.requestFocus();
@@ -69,10 +67,14 @@ class _WebViewClassState extends State<WebViewClass> {
           //ShowStartBook.routeName,
           //Navigator.popAndPushNamed(context, ShowStartBook.routeName);
         },
-        child: Text("ย้อนกลับ",
-            textAlign: TextAlign.center,
-            style: styleHeadPurple2.copyWith(
-                color: lightyellow2, fontWeight: FontWeight.bold)),
+        child: Text(
+          "ย้อนกลับ",
+          textAlign: TextAlign.center,
+          style: styleHeadPurple2.copyWith(
+            color: lightyellow2,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
 
@@ -82,14 +84,9 @@ class _WebViewClassState extends State<WebViewClass> {
       backgroundColor: lightpurple,
       appBar: AppBar(
         //title: Text(widget.title),
-        title: Text(
-          "แสดงแฟ้มข้อมูล",
-          style: styleHeadWhite4,
-        ),
+        title: Text("แสดงแฟ้มข้อมูล", style: styleHeadWhite4),
       ),
-      body: SafeArea(
-        child: Text(''),
-      ),
+      body: SafeArea(child: Text('')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         child: Icon(Icons.refresh),

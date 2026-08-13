@@ -1,10 +1,12 @@
 import 'package:budget_mobile/styles/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:hive_flutter/hive_flutter.dart';
 //import 'ResponseMessage.dart';
 import '../../global/globalVar.dart';
 import '../../styles/TextStyle.dart';
+import '../global/ManageLogin.dart';
+
+var login;
 
 class ChatPerson extends StatefulWidget {
   const ChatPerson({Key? key, required this.title}) : super(key: key);
@@ -19,38 +21,27 @@ class _ChatPersonState extends State<ChatPerson> {
   late IO.Socket socket;
   List<String>? msgList = [];
 
-  var box;
-  String Aid = "";
-  String Token = "";
-  String FullName = "";
-  //String Email = "";
-  String Status = "";
-  String UserID = "";
+  // login.get('token')
 
   _ChatPersonState() {
-    DefineBox();
+    // initHive Box Name : LoginData
+    ManageLogin _login = ManageLogin();
+    _login.DefineBox().then((box) {
+      login = box;
+    });
   }
 
-//=================set Hive for Global Data===================
+  //=================set Hive for Global Data===================
   // await Hive.initFlutter();
-  // box = await Hive.openBox('GlobalData');
+  // box = await Hive.openBox('LoginData');
   // box.put('aid', dat["aid"]);
+  // box.put('userid', dat['userid']);
+  // box.put('uid', dat['Uint']);
   // box.put('fullname', dat['fullname']);
+  // box.put('mobile', dat["mobile"]);
   // box.put('email', dat['email']);
   // box.put('status', dat["status"]);
   // box.put('token', dat["token"]);
-
-  DefineBox() async {
-    await Hive.initFlutter();
-    box = await Hive.openBox('GlobalData');
-    // get from Hive
-    Aid = box.get('aid');
-    UserID = box.get('userid');
-    Status = box.get('status');
-    FullName = box.get('fullname');
-    // Email = box.get('email');
-    Token = box.get('token');
-  }
 
   //=====define TextEditingController======
   final txtMsg = TextEditingController();
@@ -71,16 +62,19 @@ class _ChatPersonState extends State<ChatPerson> {
 
   void initialSocketIO() {
     socket = IO.io(
-        url_node,
-        IO.OptionBuilder()
-            .setTransports(["websocket"])
-            .disableAutoConnect()
-            .build());
+      url_node,
+      IO.OptionBuilder()
+          .setTransports(["websocket"])
+          .disableAutoConnect()
+          .build(),
+    );
 
     socket.connect();
 
-    socket.on("connect",
-        (data) => print("Connection : " + socket.connected.toString()));
+    socket.on(
+      "connect",
+      (data) => print("Connection : " + socket.connected.toString()),
+    );
     // socket.onConnect(
     //     (data) => print("Connection : " + socket.connected.toString()));
     socket.onConnectError((data) => print("Connected Error : $data"));
@@ -139,22 +133,25 @@ class _ChatPersonState extends State<ChatPerson> {
       autofocus: true,
       //focusNode: focusNode,
       focusNode: _focus,
+
       //keyboardType: TextInputType.text,
       //keyboardType: TextInputType.none,
-
       controller: txtMsg,
       decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          filled: true,
-          fillColor: Colors.green.shade200,
-          hintText: "กรอกข้อความที่นี่",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+        filled: true,
+        fillColor: Colors.green.shade200,
+        hintText: "กรอกข้อความที่นี่",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+      ),
       onSubmitted: (v) {
         if (txtMsg.text.trim() != "") {
           setState(() {
             //msgList?.add(txtMsg.text);
-            socket.emit("msg", {"username": UserID, "msg": txtMsg.text});
+            socket.emit("msg", {
+              "username": login.get('userid'),
+              "msg": txtMsg.text,
+            });
             txtMsg.clear();
 
             //FocusScope.of(context).previousFocus();
@@ -183,13 +180,10 @@ class _ChatPersonState extends State<ChatPerson> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.lightBlueAccent,
-        appBar: AppBar(
-          title: Text('Chat User : ${UserID}'),
-        ),
+        appBar: AppBar(title: Text('Chat User : ${login.get('userid')}')),
         body: Column(
           //mainAxisAlignment: MainAxisAlignment.spaceAround,
           //crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -206,9 +200,7 @@ class _ChatPersonState extends State<ChatPerson> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(labelBroadcast, style: styleMedium(black)),
-              ],
+              children: [Text(labelBroadcast, style: styleMedium(black))],
             ),
             // Row(
             //   children: [
@@ -216,20 +208,25 @@ class _ChatPersonState extends State<ChatPerson> {
             //   ],
             // ),
             SingleChildScrollView(
-                child: Column(
-              children: List.from(msgList!.map((msg) => Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.all(3),
-                    child: (UserID != CurrentUName)
-                        ? Text(msg)
-                        : Align(
-                            alignment: Alignment.centerRight, child: Text(msg)),
-                  ))),
-            )),
-            Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: TextMsg,
+              child: Column(
+                children: List.from(
+                  msgList!.map(
+                    (msg) => Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.all(3),
+                      child:
+                          (login.get('userid') != CurrentUName)
+                              ? Text(msg)
+                              : Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(msg),
+                              ),
+                    ),
+                  ),
+                ),
+              ),
             ),
+            Padding(padding: const EdgeInsets.all(2.0), child: TextMsg),
             Padding(
               padding: const EdgeInsets.all(3.0),
               child: FloatingActionButton(
@@ -242,8 +239,10 @@ class _ChatPersonState extends State<ChatPerson> {
                     setState(() {
                       //msgList?.add(txtMsg.text);
 
-                      socket.emit(
-                          "msg", {"username": UserID, "msg": txtMsg.text});
+                      socket.emit("msg", {
+                        "username": login.get('userid'),
+                        "msg": txtMsg.text,
+                      });
                       txtMsg.clear();
                       //txtMsg.text = '';
                     });
@@ -261,12 +260,21 @@ class _ChatPersonState extends State<ChatPerson> {
 
   Widget CardChat() {
     return Column(
-        children: List.from(msgList!.map((msg) => Container(
+      children: List.from(
+        msgList!.map(
+          (msg) => Container(
             width: MediaQuery.of(context).size.width,
             padding: EdgeInsets.all(3),
-            child: Text(msg,
-                textAlign: (UserID != CurrentUName)
-                    ? TextAlign.left
-                    : TextAlign.right)))));
+            child: Text(
+              msg,
+              textAlign:
+                  (login.get('userid') != CurrentUName)
+                      ? TextAlign.left
+                      : TextAlign.right,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

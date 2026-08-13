@@ -10,14 +10,14 @@ const String ipAddSrv = "10.130.228.1"; // flutterBudget
 //const String ipAddress = "172.17.192.1";
 //const String ipAddress = "10.130.230.31"; // local ip addr
 const String ipAddress = "10.130.228.1";
-const String url_node = "10.130.228.1:3000"; //node.js ip addr
+const String url_node = "10.130.228.3:3000"; //node.js ip addr
 //const String url_node = "10.130.230.64:3000"; //node.js ip addr
 //const String url_node = "http://172.17.192.1:3000";
 //const String url_node = "http://10.130.230.148:3000";
 
 //const String Budget_Site = "budget68";
 const String titleApp = "ระบบติดตามเร่งรัด กคง.สส.ทหาร";
-const String ownerApp = "CopyRight 2021-2025 by FS1.Sutthie J.";
+const String ownerApp = "CopyRight 2021-2027 by FS1.Sutthie J.";
 const String Budget_Site = "budget1";
 String SecretKey = "";
 

@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../styles/TextStyle.dart';
-import '../../../global/constants.dart';
 import '../../../global/size_config.dart';
 import '../../../styles/colors.dart';
 
 class SplashContent extends StatelessWidget {
-  const SplashContent({
-    Key? key,
-    this.text,
-    this.image,
-  }) : super(key: key);
+  const SplashContent({Key? key, this.text, this.image}) : super(key: key);
   final String? text, image;
 
   @override
@@ -25,10 +20,12 @@ class SplashContent extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(text!,
-            textAlign: TextAlign.center,
-            //style: TextStyle(fontWeight: FontWeight.normal),
-            style: styleSmall(txtColor3)),
+        Text(
+          text!,
+          textAlign: TextAlign.center,
+          //style: TextStyle(fontWeight: FontWeight.normal),
+          style: styleSmall(txtColor3),
+        ),
         Spacer(flex: 1),
         Flexible(
           flex: 5, // Increase flex value to make the image bigger

@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 //import '../global/GetUnitName.dart';
 import '../global/MySQLService.dart';
 import '../global/ResponseMessage.dart';
-import '../global/globalVar.dart';
 import '../models/Account.dart';
 import '../models/UnitName.dart';
 import 'EditAccDetail.dart';
@@ -324,20 +323,7 @@ class _ShowAccountState extends State<ShowAccount>
                   child: Text('เลือกหน่วยงาน', style: styleHead),
                 ),
                 SizedBox(width: 5),
-                Container(
-                  //margin: EdgeInsets.all(3),
-                  width: 210,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: lightyellow2,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(width: 1),
-                  ),
-                  child: Center(
-                    // Center the DropdownButton horizontally
-                    child: ddlUnit(unitList),
-                  ),
-                ),
+                ddlUnit(unitList),
                 // Padding(
                 //   padding: EdgeInsets.fromLTRB(6, 6, 0, 0),
                 //   child: Container(
@@ -402,44 +388,71 @@ class _ShowAccountState extends State<ShowAccount>
       builder: (context, snapshot) {
         //(BuildContext context, AsyncSnapshot<List<UnitName>?> snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
-        return DropdownButton(
-          //return DropdownButton<String>(
-          items:
-              snapshot.data
-                  ?.map(
-                    (item) => DropdownMenuItem(
-                      //?.map((item) => DropdownMenuItem<String>(
-                      child: Text(item.uint_name),
-                      value: item.uint.toString(),
-                    ),
-                  )
-                  .toList(),
-          value: seluid,
-          //value: null,
-          onChanged: (un) {
-            setState(() {
-              seluid = un.toString();
-              print("select unit : " + seluid);
-            });
-            // ignore: unused_local_variable
-            var msg = new ResponseMessage();
-            //msg.Alert(context, "เลือกหน่วยงาน", unitNow.toString());
-          },
-          //isExpanded: true,
-          hint: Text('เลือกหน่วยงาน'),
-          disabledHint: Text("Disabled"),
-          elevation: 8,
-          style: styleDropDownList,
-          //style: Theme.of(context).textTheme.labelMedium,
-          //style: Theme.of(context).textTheme.bodyText2,
-          //dropdownColor: Colors.white,
-          dropdownColor: lightyellow2,
-          //focusColor: Colors.yellow.shade100,
-          focusColor: white,
-          icon: Icon(Icons.arrow_drop_down_circle),
-          iconDisabledColor: Colors.red,
-          iconEnabledColor: Colors.blue,
-          iconSize: 30,
+        return Container(
+          width: 280.0,
+          height: 45,
+          decoration: BoxDecoration(
+            color: lightyellow2,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blue.shade300, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: DropdownButton(
+            //return DropdownButton<String>(
+            isExpanded: true,
+            underline: SizedBox(),
+            items:
+                snapshot.data
+                    ?.map(
+                      (item) => DropdownMenuItem(
+                        //?.map((item) => DropdownMenuItem<String>(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: Text(item.uint_name),
+                        ),
+                        value: item.uint.toString(),
+                      ),
+                    )
+                    .toList(),
+            value: seluid,
+            //value: null,
+            onChanged: (un) {
+              setState(() {
+                seluid = un.toString();
+                print("select unit : " + seluid);
+              });
+              // ignore: unused_local_variable
+              var msg = new ResponseMessage();
+              //msg.Alert(context, "เลือกหน่วยงาน", unitNow.toString());
+            },
+            hint: Text(
+              'เลือกหน่วยงาน',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            ),
+            disabledHint: Text("Disabled"),
+            elevation: 12,
+            style: styleDropDownList.copyWith(fontSize: 14),
+            //style: Theme.of(context).textTheme.labelMedium,
+            //style: Theme.of(context).textTheme.bodyText2,
+            //dropdownColor: Colors.white,
+            dropdownColor: lightyellow2,
+            //focusColor: Colors.yellow.shade100,
+            focusColor: Colors.white,
+            icon: Icon(
+              Icons.arrow_drop_down_circle,
+              color: Colors.blue.shade600,
+            ),
+            iconDisabledColor: Colors.red,
+            iconEnabledColor: Colors.blue.shade600,
+            iconSize: 28,
+          ),
         );
       },
     );

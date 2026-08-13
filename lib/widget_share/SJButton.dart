@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../global/size_config.dart';
 
 class SJButton extends StatelessWidget {
   const SJButton({
@@ -30,17 +29,12 @@ class SJButton extends StatelessWidget {
         style: TextButton.styleFrom(
           foregroundColor: txtcolor,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radius)),
+            borderRadius: BorderRadius.circular(radius),
+          ),
           backgroundColor: bgcolor,
         ),
         onPressed: press as void Function()?,
-        child: Text(
-          text!,
-          style: TextStyle(
-            fontSize: 25,
-            color: txtcolor,
-          ),
-        ),
+        child: Text(text!, style: TextStyle(fontSize: 25, color: txtcolor)),
       ),
     );
   }

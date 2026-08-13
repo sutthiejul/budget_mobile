@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors, file_names
 
-import 'dart:convert';
-
+import 'package:budget_mobile/screens/theme/SetTheme.dart';
 import 'package:budget_mobile/styles/colors.dart';
 import 'package:flutter/material.dart';
 import '../admin/ShowAccDetail.dart';
@@ -11,7 +10,6 @@ import '../budget/ShowStartBook.dart';
 import '../chat/ChatPerson.dart';
 // import '../admin/AddUser.dart';
 import '../admin/ShowAcc.dart';
-import '../budget/ShowExpediteAdmin.dart';
 import '../global/MySQLService.dart';
 import '../global/globalVar.dart';
 import '../global/ManageLogin.dart';
@@ -38,14 +36,14 @@ class SideMenuLeftAdmin extends StatelessWidget {
   // box = await Hive.openBox('LoginData');
   // box.put('aid', dat["aid"]);
   // box.put('userid', dat['userid']);
-  // box.put('uid', dat['uid']);
+  // box.put('uid', dat['Uint']);
   // box.put('fullname', dat['fullname']);
   // box.put('mobile', dat["mobile"]);
   // box.put('email', dat['email']);
   // box.put('status', dat["status"]);
   // box.put('token', dat["token"]);
 
-//============================================================
+  //============================================================
 
   String getStatusUser(String i) {
     String str = "";
@@ -74,30 +72,10 @@ class SideMenuLeftAdmin extends StatelessWidget {
     MySQLDB mysql = MySQLDB();
     ResponseMessage resp = new ResponseMessage();
 
-    mysql.VerifyTokenExpireBearer(login.get('token')!, SecretKey)
-        .then((result) async {
-      if (result.trim() != "") {
-        var ret = json.decode(result.trim());
-        // check data return
-        print("Status Token Return : " + ret['status']);
-
-        if (ret != null) {
-          if (ret['status'] == "expired") {
-            //print("Token Expired !!!");
-            resp.Alert(context, "Session Expired", "Token หมดอายุ !!!");
-            mysql.delay(2, () => mysql.redirectSignIn(context));
-            //mysql.redirectSignIn(context);
-          } else if (ret['status'] == "error") {
-            //print("Token Error !!!");
-            resp.Alert(context, "Token Error", "Token Error !!!");
-            mysql.delay(2, () => mysql.redirectSignIn(context));
-          }
-        }
-      } else {
-        // no have return value
-        resp.Alert(context, "ไม่พบข้อมูล token", "Token Nothing !!!");
-        //print("Token Nothing !!!");
-
+    mysql.VerifyTokenExpireJ6(login.get('token')!).then((result) async {
+      if (result.trim() == "") {
+        // token expire or invalid
+        resp.Alert(context, "Session Expired or Invalid", "Token หมดอายุ !!!");
         mysql.delay(2, () => mysql.redirectSignIn(context));
       }
     });
@@ -119,9 +97,10 @@ class SideMenuLeftAdmin extends StatelessWidget {
                         'เมนูหลัก',
                         //textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -130,14 +109,18 @@ class SideMenuLeftAdmin extends StatelessWidget {
                             Text(
                               "ชื่อผู้ใช้ : ",
                               //textAlign: TextAlign.start,
-                              style:
-                                  TextStyle(color: Colors.yellow, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.yellow,
+                                fontSize: 14,
+                              ),
                             ),
                             Text(
                               "${login.get('fullname')}",
                               //textAlign: TextAlign.start,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -150,15 +133,19 @@ class SideMenuLeftAdmin extends StatelessWidget {
                               //"สถานะ : ${login.get('status')}",
                               "สถานะ : ",
                               //textAlign: TextAlign.start,
-                              style:
-                                  TextStyle(color: Colors.yellow, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.yellow,
+                                fontSize: 14,
+                              ),
                             ),
                             Text(
                               //"สถานะ : ${login.get('status')}",
                               "${getStatusUser(login.get('status'))}",
                               //textAlign: TextAlign.start,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -172,8 +159,10 @@ class SideMenuLeftAdmin extends StatelessWidget {
                               //"หน่วยงาน : ${getStatusUser(login.get('unitname'))}",
                               "หน่วยงาน : ",
                               //textAlign: TextAlign.start,
-                              style:
-                                  TextStyle(color: Colors.yellow, fontSize: 14),
+                              style: TextStyle(
+                                color: Colors.yellow,
+                                fontSize: 14,
+                              ),
                             ),
                             Text(
                               //"สถานะ : ${login.get('status')}",
@@ -181,7 +170,9 @@ class SideMenuLeftAdmin extends StatelessWidget {
                               "${CurrentUnitName}",
                               //textAlign: TextAlign.start,
                               style: TextStyle(
-                                  color: Colors.cyan.shade50, fontSize: 14),
+                                color: Colors.cyan.shade50,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -189,9 +180,7 @@ class SideMenuLeftAdmin extends StatelessWidget {
                     ],
                   ),
                 ),
-                decoration: BoxDecoration(
-                  color: bgcolorApp,
-                ),
+                decoration: BoxDecoration(color: bgcolorApp),
               ),
               ListTile(
                 leading: const Icon(Icons.person),
@@ -199,17 +188,19 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'ข้อมูลแอคเค้าท์',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      //builder: (context) => ShowAccountDetail(login.get('aid')),
-                      builder: (context) => ShowAccountDetail(login.get('aid')),
-                      //builder: (context) => ShowAccount(),
-                    ),
-                  ),
-                },
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          //builder: (context) => ShowAccountDetail(login.get('aid')),
+                          builder:
+                              (context) => ShowAccountDetail(login.get('aid')),
+                          //builder: (context) => ShowAccount(),
+                        ),
+                      ),
+                    },
               ),
               // ListTile(
               //   leading: const Icon(Icons.person_add),
@@ -230,15 +221,14 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'ข้อมูลงบประมาณ(User)',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ShowExpedite(),
-                    ),
-                  ),
-                },
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ShowExpedite()),
+                      ),
+                    },
               ),
 
               ListTile(
@@ -247,15 +237,16 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'หน่วยต้นเรื่องส่งต่อ',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ShowStartBook(),
-                    ),
-                  ),
-                },
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ShowStartBook(),
+                        ),
+                      ),
+                    },
               ),
               ListTile(
                 leading: const Icon(Icons.border_color),
@@ -263,16 +254,36 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'บันทึกรับงานของหน่วย',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ShowReceiveExpedite(login.get('uid')),
-                    ),
-                  ),
-                },
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  ShowReceiveExpedite(login.get('uid')),
+                        ),
+                      ),
+                    },
+              ),
+              ListTile(
+                leading: const Icon(Icons.border_color),
+                title: const Text(
+                  'Theme-ชุดการแสดงผล',
+                  style: TextStyle(color: Colors.brown, fontSize: 15),
+                ),
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.pushNamed(context, SetTheme.routeName),
+                      /*
+                      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                        SignInScreen.routeName,
+                        (Route<dynamic> route) => false,
+                      );
+                      */
+                    },
               ),
               ListTile(
                 leading: const Icon(Icons.chat),
@@ -280,26 +291,26 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'คุยกัน',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatPerson(
-                        title: '',
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatPerson(title: ''),
+                        ),
                       ),
-                    ),
-                  ),
-                },
+                    },
               ),
               ListTile(
                 //leading: const Icon(Icons.chat),
                 title: const Text(
                   '-----------ฟังก์ชันแอดมิน------------',
                   style: TextStyle(
-                      color: Colors.purple,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.purple,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               ListTile(
@@ -308,31 +319,14 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'บริหารรายชื่อผู้ใช้',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ShowAccount(),
-                    ),
-                  ),
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.border_color),
-                title: const Text(
-                  'ข้อมูลงบประมาณ(แอดมิน)',
-                  style: TextStyle(color: Colors.brown, fontSize: 15),
-                ),
-                onTap: () => {
-                  //Navigator.of(context).pop()
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ShowExpediteAdmin(),
-                    ),
-                  ),
-                },
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ShowAccount()),
+                      ),
+                    },
               ),
 
               ListTile(
@@ -340,9 +334,10 @@ class SideMenuLeftAdmin extends StatelessWidget {
                 title: const Text(
                   '------------------------------------------',
                   style: TextStyle(
-                      color: Colors.purple,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.purple,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
 
@@ -352,17 +347,18 @@ class SideMenuLeftAdmin extends StatelessWidget {
                   'Logout',
                   style: TextStyle(color: Colors.brown, fontSize: 15),
                 ),
-                onTap: () => {
-                  // Navigator.of(context).pushNamedAndRemoveUntil(
-                  //     SignInScreen.routeName, (Route<dynamic> route) => false),
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => SignInScreen(),
-                  //   ),
-                  // ),
-                  mysql.delay(2, () => mysql.redirectSignIn(context))
-                },
+                onTap:
+                    () => {
+                      // Navigator.of(context).pushNamedAndRemoveUntil(
+                      //     SignInScreen.routeName, (Route<dynamic> route) => false),
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => SignInScreen(),
+                      //   ),
+                      // ),
+                      mysql.delay(2, () => mysql.redirectSignIn(context)),
+                    },
               ),
               /* ListTile(
                 leading: Icon(Icons.exit_to_app),

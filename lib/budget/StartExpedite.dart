@@ -205,32 +205,18 @@ class _ShowBudgetDetailState extends State<StartExpedite> {
     // });
 
     _focus_days.addListener(() {
+      // Run calculation only when the field loses focus (focus out)
       if (!_focus_days.hasFocus) {
         if (txtDays.text.isNotEmpty &&
             txtDays.text != '0' &&
-            txtDateStart.text.isNotEmpty &&
-            txtDateStart.text != "0000-00-00") {
-          // alert value in txt_days
-          // msg.Alert(
-          //   context,
-          //   "Status Text Changed",
-          //   "Value : " + txtDays.text + " วัน",
-          // );
-
+            txtDateStart.text.isNotEmpty) //&& txtDateStart.text != "0000-00-00"
+        {
           //=====get holiday in year======
           String day_end;
 
           holidayService
               .getAllHoliday(yearNow.toString())
               .then((holidayData) {
-                //print('Loaded holiday data: $holidayData');
-                // print(
-                //   "Holiday Count : " + holidayData['dates'].length.toString(),
-                // );
-                // for (int i = 0; i < holidayData['dates'].length; i++) {
-                //   print(holidayData['dates'][i]);
-                // }
-
                 day_end = dtClass.LastDate(
                   dtClass.ConvertDateThaitoDB(txtDateStart.text),
                   int.parse(txtDays.text),
@@ -239,12 +225,6 @@ class _ShowBudgetDetailState extends State<StartExpedite> {
                 setState(() {
                   txtDateStop.text = dtClass.ConvertDateThai(day_end);
                 });
-
-                // msg.Alert(
-                //   context,
-                //   "test convert thai date to yyyy-mm-dd",
-                //   txtDateStop.text,
-                // );
               })
               .catchError((error) {
                 print('Failed to load holiday data: $error');

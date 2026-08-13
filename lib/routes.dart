@@ -1,5 +1,4 @@
 import 'package:budget_mobile/admin/ShowAcc.dart';
-import 'package:budget_mobile/budget/ShowReceiveExpedite.dart';
 import 'package:budget_mobile/budget/ShowStartBook.dart';
 import 'package:flutter/widgets.dart';
 import './admin/AddUser.dart';
@@ -12,6 +11,7 @@ import './screens/profile/profile_screen.dart';
 import './screens/sign_in/sign_in_screen.dart';
 import './screens/splash/SplashScreen.dart';
 import './screens/advert/AdvertScreen.dart';
+import './screens/theme/SetTheme.dart';
 import 'MainPageAdmin.dart';
 import 'screens/sign_up/sign_up_screen.dart';
 import './screens/account/ShowAccDetail.dart';
@@ -39,5 +39,6 @@ final Map<String, WidgetBuilder> routes = {
   ShowAccount.routeName: (context) => ShowAccount(),
   AddUser.routeName: (context) => AddUser(),
   ShowStartBook.routeName: (context) => ShowStartBook(),
+  SetTheme.routeName: (context) => const SetTheme(),
   //ShowReceiveExpedite.routeName: (context) => ShowReceiveExpedite(uid),
 };

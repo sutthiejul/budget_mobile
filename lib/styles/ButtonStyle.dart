@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import './colors.dart';
 
 ButtonStyle styleButtonCustom(bgcolor) {
   //bgcolor = red;
@@ -8,7 +7,12 @@ ButtonStyle styleButtonCustom(bgcolor) {
 
 //ElevatedButton style: ButtonCustomElevated(yellow, brown, 18.0, "bold", 25),
 ButtonStyle ButtonCustomElevated(
-    fgcolor, bgcolor, double fontsize, fontweight, double radius) {
+  fgcolor,
+  bgcolor,
+  double fontsize,
+  fontweight,
+  double radius,
+) {
   FontWeight fweight;
   if (fontweight == "bold") {
     fweight = FontWeight.bold;
@@ -26,15 +30,10 @@ ButtonStyle ButtonCustomElevated(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
     // Text style
-    textStyle: TextStyle(
-      fontSize: fontsize,
-      fontWeight: fweight,
-    ),
+    textStyle: TextStyle(fontSize: fontsize, fontWeight: fweight),
 
     // Shape
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(radius),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
 
     // Elevation
     elevation: 5,
@@ -51,15 +50,10 @@ ButtonStyle ButtonBlueElevated() {
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
     // Text style
-    textStyle: const TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    ),
+    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
 
     // Shape
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
 
     // Elevation
     elevation: 5,
@@ -76,15 +70,10 @@ ButtonStyle ButtonBlueElevatedRadius20() {
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
     // Text style
-    textStyle: const TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.normal,
-    ),
+    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
 
     // Shape
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
     // Elevation
     elevation: 5,
@@ -101,15 +90,10 @@ ButtonStyle ButtonRedElevatedRadius20() {
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
     // Text style
-    textStyle: const TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.normal,
-    ),
+    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
 
     // Shape
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
     // Elevation
     elevation: 5,
@@ -118,26 +102,28 @@ ButtonStyle ButtonRedElevatedRadius20() {
 
 ButtonStyle ButtonGreenElevated() {
   return ButtonStyle(
-      // Background color
-      backgroundColor: WidgetStateProperty.all(Colors.green),
+    // Background color
+    backgroundColor: WidgetStateProperty.all(Colors.green),
 
-      // Text color
-      foregroundColor: WidgetStateProperty.all(Colors.white),
+    // Text color
+    foregroundColor: WidgetStateProperty.all(Colors.white),
 
-      // Padding
-      padding: WidgetStateProperty.all(
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 10)),
+    // Padding
+    padding: WidgetStateProperty.all(
+      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    ),
 
-      // Elevation
-      elevation: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.pressed)) {
-          return 0; // No elevation when pressed
-        }
-        return 5; // Default elevation
-      }),
+    // Elevation
+    elevation: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.pressed)) {
+        return 0; // No elevation when pressed
+      }
+      return 5; // Default elevation
+    }),
 
-      // Shape
-      shape: WidgetStateProperty.all(RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      )));
+    // Shape
+    shape: WidgetStateProperty.all(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ),
+  );
 }
