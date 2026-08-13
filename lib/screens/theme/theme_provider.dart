@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum AppThemeType {
-  purple,
-  blue,
-  green,
-  orange,
-  dark,
-}
+enum AppThemeType { purple, blue, green, orange, dark }
 
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = "selected_theme_mode";
-  
+
   static AppThemeType _currentTheme = AppThemeType.purple;
 
   static AppThemeType get currentTheme => _currentTheme;
@@ -88,16 +82,16 @@ class ThemeProvider extends ChangeNotifier {
       case AppThemeType.orange:
         return Colors.orange.shade300;
       case AppThemeType.dark:
-        return const Color(0xFF1F1F1F);
+        return const Color.fromARGB(255, 97, 97, 97);
     }
   }
 
   ThemeData getThemeData() {
     final isDark = _currentTheme == AppThemeType.dark;
-    
+
     // Base colors
     final scaffoldBg = activeBgcolorTitlebar;
-    
+
     return ThemeData(
       brightness: isDark ? Brightness.dark : Brightness.light,
       scaffoldBackgroundColor: scaffoldBg,
@@ -107,21 +101,30 @@ class ThemeProvider extends ChangeNotifier {
         elevation: 0,
         iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
         titleTextStyle: TextStyle(
-          color: isDark ? Colors.white : const Color(0XFF8B8B8B), 
+          color: isDark ? Colors.white : const Color(0XFF8B8B8B),
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
       ),
       textTheme: TextTheme(
-        bodyLarge: TextStyle(color: isDark ? Colors.white : const Color(0xFF757575)),
-        bodyMedium: TextStyle(color: isDark ? Colors.white70 : const Color(0xFF757575)),
+        bodyLarge: TextStyle(
+          color: isDark ? Colors.white : const Color(0xFF757575),
+        ),
+        bodyMedium: TextStyle(
+          color: isDark ? Colors.white70 : const Color(0xFF757575),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 42, vertical: 20),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 42,
+          vertical: 20,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide(color: isDark ? Colors.white38 : const Color(0xFF757575)),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white38 : const Color(0xFF757575),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
@@ -129,7 +132,9 @@ class ThemeProvider extends ChangeNotifier {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide(color: isDark ? Colors.white38 : const Color(0xFF757575)),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white38 : const Color(0xFF757575),
+          ),
         ),
       ),
       visualDensity: VisualDensity.adaptivePlatformDensity,

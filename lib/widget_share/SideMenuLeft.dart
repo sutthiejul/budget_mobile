@@ -1,3 +1,4 @@
+import '../screens/theme/theme_provider.dart';
 import 'package:budget_mobile/admin/ShowAccDetail.dart';
 import 'package:budget_mobile/budget/ShowStartBook.dart';
 import 'package:budget_mobile/styles/colors.dart';
@@ -88,11 +89,14 @@ class SideMenuLeft extends StatelessWidget {
     //=================================================================
     return Drawer(
       child: Container(
-        color: lightpurple2,
+        color: ThemeProvider.activeBgcolorTitlebar,
         child: SingleChildScrollView(
           child: Column(
             children: [
               DrawerHeader(
+                decoration: BoxDecoration(
+                  color: ThemeProvider.activeBgcolorApp,
+                ),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -186,7 +190,6 @@ class SideMenuLeft extends StatelessWidget {
                     ],
                   ),
                 ),
-                decoration: BoxDecoration(color: bgcolorApp),
               ),
               ListTile(
                 leading: const Icon(Icons.home),
