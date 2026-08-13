@@ -9,6 +9,7 @@ import '../global/ManageLogin.dart';
 var login;
 
 class ChatPerson extends StatefulWidget {
+  static String routeName = "/chatperson";
   const ChatPerson({Key? key, required this.title}) : super(key: key);
 
   final String title;

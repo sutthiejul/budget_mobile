@@ -153,7 +153,12 @@ class Body extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => MainPageAdmin()),
                   );
                 else
-                  Navigator.pushReplacementNamed(context, MainPage.routeName);
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    MainPage.routeName,
+                    (Route<dynamic> route) => true,
+                  );
+                // Navigator.pushReplacementNamed(context, MainPage.routeName);
               },
             ),
           ),

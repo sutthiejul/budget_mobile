@@ -7,6 +7,7 @@ import '../MainPage.dart';
 import '../budget/ShowExpedite.dart';
 //import '../budget/ShowExpediteOwn.dart';
 import '../budget/ShowReceiveExpedite.dart';
+import '../chat/ChatPerson.dart';
 import '../global/ManageLogin.dart';
 // import 'package:hive_flutter/hive_flutter.dart';
 // import '../chat/ChatPerson.dart';
@@ -15,6 +16,7 @@ import '../global/ManageLogin.dart';
 import '../global/ResponseMessage.dart';
 import '../global/globalVar.dart';
 import '../global/MySQLService.dart';
+import '../screens/theme/SetTheme.dart';
 // import '../upload/TestFormFileUp.dart';
 // import '../upload/TestUploadFile.dart';
 // import '../upload/TestUploadFile1.dart';
@@ -298,24 +300,43 @@ class SideMenuLeft extends StatelessWidget {
                     },
               ),
 
-              // ListTile(
-              //   leading: const Icon(Icons.chat),
-              //   title: const Text(
-              //     'คุยกัน',
-              //     style: TextStyle(color: Colors.brown, fontSize: 18),
-              //   ),
-              //   onTap: () => {
-              //Navigator.of(context).pop()
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => ChatPerson(
-              //       title: '',
-              //     ),
-              //   ),
-              // ),
-              //   },
-              // ),
+              ListTile(
+                leading: const Icon(Icons.border_color),
+                title: const Text(
+                  'Theme-ชุดการแสดงผล',
+                  style: TextStyle(color: Colors.brown, fontSize: 15),
+                ),
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.pushNamed(context, SetTheme.routeName),
+                      /*
+                      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                        SignInScreen.routeName,
+                        (Route<dynamic> route) => false,
+                      );
+                      */
+                    },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.chat),
+                title: const Text(
+                  'คุยกัน',
+                  style: TextStyle(color: Colors.brown, fontSize: 18),
+                ),
+                onTap:
+                    () => {
+                      //Navigator.of(context).pop()
+                      Navigator.pushNamed(context, ChatPerson.routeName),
+                      /*
+                      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                        SignInScreen.routeName,
+                        (Route<dynamic> route) => false,
+                      );
+                      */
+                    },
+              ),
 
               // if (login.get('status') == '1')
               //   ListTile(

@@ -13,6 +13,7 @@ import './screens/splash/SplashScreen.dart';
 import './screens/advert/AdvertScreen.dart';
 import './screens/theme/SetTheme.dart';
 import 'MainPageAdmin.dart';
+import 'chat/ChatPerson.dart';
 import 'screens/sign_up/sign_up_screen.dart';
 import './screens/account/ShowAccDetail.dart';
 import './screens/login_success/login_false_screen.dart';
@@ -40,5 +41,6 @@ final Map<String, WidgetBuilder> routes = {
   AddUser.routeName: (context) => AddUser(),
   ShowStartBook.routeName: (context) => ShowStartBook(),
   SetTheme.routeName: (context) => const SetTheme(),
+  ChatPerson.routeName: (context) => ChatPerson(title: 'Chat Person'),
   //ShowReceiveExpedite.routeName: (context) => ShowReceiveExpedite(uid),
 };
