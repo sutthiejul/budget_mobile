@@ -1,0 +1,12 @@
+{
+  "ignore": [
+    "message/*",
+    "messages.json",
+    "*.json"
+  ],
+  "watch": [
+    "js/",
+    "chatJ6.js"
+  ],
+  "ext": "js"
+}

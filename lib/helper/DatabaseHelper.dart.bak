@@ -1,0 +1,104 @@
+import 'dart:async';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+
+class DatabaseHelper {
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  static Database? _database;
+
+  DatabaseHelper._init();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB('chat_database.db');
+    return _database!;
+  }
+
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
+
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
+  }
+
+  Future _createDB(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE group_chats (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        msg TEXT NOT NULL,
+        timestamp INTEGER NOT NULL
+      )
+    ''');
+  }
+
+  Future<int> insertMessage(String username, String msg, {int? timestamp}) async {
+    final db = await instance.database;
+    
+    // Check if current count is 200 or more
+    final count = await getMessageCount();
+    if (count >= 200) {
+      // Exceeds 200 limit: Clear all chats and start recording a new batch
+      await clearAllMessages();
+    }
+
+    final id = await db.insert('group_chats', {
+      'username': username,
+      'msg': msg,
+      'timestamp': timestamp ?? DateTime.now().millisecondsSinceEpoch,
+    });
+    return id;
+  }
+
+  Future<int> getMessageCount() async {
+    final db = await instance.database;
+    final count = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM group_chats')
+    );
+    return count ?? 0;
+  }
+
+  Future<List<Map<String, dynamic>>> getAllMessages() async {
+    final db = await instance.database;
+    return await db.query('group_chats', orderBy: 'id ASC');
+  }
+
+  Future<int> clearAllMessages() async {
+    final db = await instance.database;
+    return await db.delete('group_chats');
+  }
+
+  Future<void> syncHistory(List<dynamic> history) async {
+    final db = await instance.database;
+    
+    // Clear existing local messages before syncing
+    await clearAllMessages();
+    
+    // Keep at most 200 of the latest messages
+    List<dynamic> targetHistory = history;
+    if (history.length > 200) {
+      targetHistory = history.sublist(history.length - 200);
+    }
+
+    await db.transaction((txn) async {
+      for (var item in targetHistory) {
+        await txn.insert('group_chats', {
+          'username': item['username'] ?? '',
+          'msg': item['msg'] ?? '',
+          'timestamp': item['timestamp'] ?? DateTime.now().millisecondsSinceEpoch,
+        });
+      }
+    });
+  }
+
+  Future<void> close() async {
+    final db = await _database;
+    if (db != null) {
+      await db.close();
+    }
+  }
+}

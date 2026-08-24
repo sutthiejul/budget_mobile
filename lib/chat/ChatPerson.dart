@@ -1,10 +1,9 @@
-import 'package:budget_mobile/styles/colors.dart';
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-//import 'ResponseMessage.dart';
 import '../../global/globalVar.dart';
-import '../../styles/TextStyle.dart';
 import '../global/ManageLogin.dart';
+import 'package:budget_mobile/helper/DatabaseHelper.dart';
 
 var login;
 
@@ -19,261 +18,527 @@ class ChatPerson extends StatefulWidget {
 }
 
 class _ChatPersonState extends State<ChatPerson> {
-  late IO.Socket socket;
-  List<String>? msgList = [];
+  IO.Socket? socket;
+  List<Map<String, dynamic>> msgList = [];
+  bool isDbLoading = true;
+  bool isConnected = false;
+  String connectionError = "";
+  int groupUserCount = 0;
 
-  // login.get('token')
-
-  _ChatPersonState() {
-    // initHive Box Name : LoginData
-    ManageLogin _login = ManageLogin();
-    _login.DefineBox().then((box) {
-      login = box;
-    });
-  }
-
-  //=================set Hive for Global Data===================
-  // await Hive.initFlutter();
-  // box = await Hive.openBox('LoginData');
-  // box.put('aid', dat["aid"]);
-  // box.put('userid', dat['userid']);
-  // box.put('uid', dat['Uint']);
-  // box.put('fullname', dat['fullname']);
-  // box.put('mobile', dat["mobile"]);
-  // box.put('email', dat['email']);
-  // box.put('status', dat["status"]);
-  // box.put('token', dat["token"]);
-
-  //=====define TextEditingController======
   final txtMsg = TextEditingController();
-  String labelGreeting = "";
-  String labelBroadcast = "";
-
-  bool _visible_state = true;
-
   final FocusNode _focus = FocusNode();
-  ScrollController listviewcontroller = new ScrollController();
+  final ScrollController listviewcontroller = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    //msgList.add("");
-    initialSocketIO();
+    loadLocalData();
+  }
+
+  void loadLocalData() async {
+    ManageLogin manageLogin = ManageLogin();
+    final box = await manageLogin.DefineBox();
+    final localChats = await DatabaseHelper.instance.getAllMessages();
+
+    if (mounted) {
+      setState(() {
+        login = box;
+        msgList = localChats;
+        isDbLoading = false;
+      });
+      scrollToBottom();
+      initialSocketIO();
+    }
   }
 
   void initialSocketIO() {
-    socket = IO.io(
-      url_node,
-      IO.OptionBuilder()
-          .setTransports(["websocket"])
-          .disableAutoConnect()
-          .build(),
+    String connectUrl = url_node.trim();
+    if (!connectUrl.startsWith("http://") &&
+        !connectUrl.startsWith("https://")) {
+      connectUrl = "http://" + connectUrl;
+    }
+
+    dev.log(
+      "==> [Socket Client] Connecting to: $connectUrl",
+      name: "CHAT_SOCKET",
     );
 
-    socket.connect();
+    try {
+      socket = IO.io(
+        connectUrl,
+        IO.OptionBuilder()
+            .setTransports(['websocket'])
+            .enableAutoConnect()
+            .enableReconnection()
+            .setReconnectionAttempts(10)
+            .setReconnectionDelay(2000)
+            .build(),
+      );
 
-    socket.on(
-      "connect",
-      (data) => print("Connection : " + socket.connected.toString()),
-    );
-    // socket.onConnect(
-    //     (data) => print("Connection : " + socket.connected.toString()));
-    socket.onConnectError((data) => print("Connected Error : $data"));
-    socket.onDisconnect((data) => print("DisConnected Server"));
-
-    //socket.on("greeting", (data) => print(data["txt"]));
-    socket.on("greeting", (data) {
-      print(data["txt"]);
-
-      setState(() {
-        //txtMsg.text = data["txt"];
-        labelGreeting = data["txt"];
+      socket!.onConnect((_) {
+        dev.log(
+          "==> [Socket Client] Connected successfully!",
+          name: "CHAT_SOCKET",
+        );
+        if (mounted) {
+          setState(() {
+            isConnected = true;
+            connectionError = "";
+          });
+        }
+        final myUserid =
+            login?.get('userid') ??
+            'User_${DateTime.now().millisecondsSinceEpoch % 1000}';
+        socket!.emit("join_group", {"userid": myUserid});
       });
 
-      Future.delayed(const Duration(seconds: 5), () {
-        setState(() {
-          _visible_state = false;
+      socket!.onConnectError((err) {
+        dev.log(
+          "==> [Socket Client Error] ConnectError: $err",
+          name: "CHAT_SOCKET",
+        );
+        if (mounted) {
+          setState(() {
+            isConnected = false;
+            connectionError = "ConnectError: $err";
+          });
+        }
+      });
+
+      socket!.onError((err) {
+        dev.log(
+          "==> [Socket Client Error] General Error: $err",
+          name: "CHAT_SOCKET",
+        );
+        if (mounted) {
+          setState(() {
+            isConnected = false;
+            connectionError = "Error: $err";
+          });
+        }
+      });
+
+      // ใช้ .on('connect_timeout', ...) แทน onConnectTimeout เพื่อรองรับ socket_io_client 3.x
+      socket!.on('connect_timeout', (data) {
+        dev.log(
+          "==> [Socket Client Error] Connect Timeout",
+          name: "CHAT_SOCKET",
+        );
+        if (mounted) {
+          setState(() {
+            isConnected = false;
+            connectionError = "Connection Timeout";
+          });
+        }
+      });
+
+      socket!.onDisconnect((reason) {
+        dev.log(
+          "==> [Socket Client] Disconnected: $reason",
+          name: "CHAT_SOCKET",
+        );
+        // ถ้าเป็นการหลุดชั่วคราวแล้วกำลังต่อใหม่ ให้รอ 1 วินาทีก่อนแสดงแถบแดง
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          if (mounted && !(socket?.connected ?? false)) {
+            setState(() {
+              isConnected = false;
+              connectionError = "Disconnected: $reason";
+            });
+          }
         });
       });
-    });
 
-    //socket.on("greeting", (data) => print(data["txt"]));
-    socket.on("broadcast", (data) {
-      print(data["txt"]);
-
-      setState(() {
-        labelBroadcast = data["txt"];
-      });
-    });
-
-    socket.on("msg", (data) {
-      //print("UserName : " + data["username"] + " Message : " + data["msg"]);
-      //print("UserName : " + data.username + " Message : " + data.msg);
-
-      setState(() {
-        // if (UserName != data["username"]) {
-        //   _txtChatAlign = TextAlign.left;
-        //   _styleTextChat = styleChatOther;
-        // } else {
-        //   _txtChatAlign = TextAlign.right;
-        //   _styleTextChat = styleChatOur;
-        // }
-        CurrentUName = data["username"];
-        msgList?.add(data["msg"]);
+      socket!.on("group_info", (data) {
+        dev.log(
+          "==> [Socket Client] Received group_info: $data",
+          name: "CHAT_SOCKET",
+        );
+        if (mounted) {
+          setState(() {
+            groupUserCount = data["count"] ?? 0;
+          });
+        }
       });
 
-      if (listviewcontroller.hasClients)
+      socket!.on("history", (data) async {
+        dev.log(
+          "==> [Socket Client] Received history count: ${(data as List).length}",
+          name: "CHAT_SOCKET",
+        );
+        final historyList = List<dynamic>.from(data);
+        await DatabaseHelper.instance.syncHistory(historyList);
+        final localChats = await DatabaseHelper.instance.getAllMessages();
+        if (mounted) {
+          setState(() {
+            msgList = localChats;
+          });
+          scrollToBottom();
+        }
+      });
+
+      socket!.on("msg", (data) async {
+        dev.log(
+          "==> [Socket Client] Received message: $data",
+          name: "CHAT_SOCKET",
+        );
+        final username = data["username"] ?? '';
+        final msg = data["msg"] ?? '';
+        final timestamp =
+            data["timestamp"] ?? DateTime.now().millisecondsSinceEpoch;
+
+        await DatabaseHelper.instance.insertMessage(
+          username,
+          msg,
+          timestamp: timestamp,
+        );
+        final localChats = await DatabaseHelper.instance.getAllMessages();
+        if (mounted) {
+          setState(() {
+            msgList = localChats;
+          });
+          scrollToBottom();
+        }
+      });
+    } catch (e, stack) {
+      dev.log(
+        "==> [Socket Client Exception] $e",
+        error: e,
+        stackTrace: stack,
+        name: "CHAT_SOCKET",
+      );
+    }
+  }
+
+  void scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (listviewcontroller.hasClients) {
         listviewcontroller.jumpTo(listviewcontroller.position.maxScrollExtent);
+      }
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final TextMsg = TextField(
-      style: styleMedium(black),
-      autofocus: true,
-      //focusNode: focusNode,
-      focusNode: _focus,
+  void sendMessage() {
+    if (txtMsg.text.trim().isNotEmpty && login != null && socket != null) {
+      final myUserid = login?.get('userid') ?? 'User';
+      socket!.emit("msg", {"username": myUserid, "msg": txtMsg.text.trim()});
+      txtMsg.clear();
+      _focus.requestFocus();
+    }
+  }
 
-      //keyboardType: TextInputType.text,
-      //keyboardType: TextInputType.none,
-      controller: txtMsg,
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        filled: true,
-        fillColor: Colors.green.shade200,
-        hintText: "กรอกข้อความที่นี่",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      ),
-      onSubmitted: (v) {
-        if (txtMsg.text.trim() != "") {
-          setState(() {
-            //msgList?.add(txtMsg.text);
-            socket.emit("msg", {
-              "username": login.get('userid'),
-              "msg": txtMsg.text,
-            });
-            txtMsg.clear();
+  String formatTimestamp(int? timestamp) {
+    if (timestamp == null) return "";
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final hour = dateTime.hour;
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return "$hour.$minute น.";
+  }
 
-            //FocusScope.of(context).previousFocus();
-            //FocusScope.of(context).requestFocus();
-            //FocusScope.of(context).requestFocus(_focus);
-            _focus.requestFocus();
-          });
+  Widget buildAvatar(String username) {
+    final firstLetter =
+        username.isNotEmpty ? username.substring(0, 1).toUpperCase() : '?';
+    final colors = [
+      Colors.blueGrey.shade600,
+      Colors.teal.shade700,
+      Colors.indigo.shade600,
+      Colors.brown.shade600,
+      Colors.deepPurple.shade600,
+      Colors.cyan.shade800,
+    ];
+    final avatarColor = colors[username.hashCode.abs() % colors.length];
 
-          // if (listviewcontroller.hasClients)
-          //   listviewcontroller
-          //       .jumpTo(listviewcontroller.position.maxScrollExtent);
-        }
-
-        //var msg = new ResponseMessage();
-        //msg.Alert(context, "ข้อความ", '${txtMsg.text}');
-
-        // setState(() {
-        //   msgList?.add(txtMsg.text);
-        // });
-
-        // txtMsg.text = '';
-      },
-    );
-
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.lightBlueAccent,
-        appBar: AppBar(title: Text('Chat User : ${login.get('userid')}')),
-        body: Column(
-          //mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Visibility(
-                    child: Text(labelGreeting, style: styleMedium(black)),
-                    visible: _visible_state,
-                  ),
-                  //Text(labelGreeting,textAlign: TextAlign.center, style: styleLabelMedium),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text(labelBroadcast, style: styleMedium(black))],
-            ),
-            // Row(
-            //   children: [
-            //     (msgList != null && msgList?.length != 0) ? CardChat() : Text('')
-            //   ],
-            // ),
-            SingleChildScrollView(
-              child: Column(
-                children: List.from(
-                  msgList!.map(
-                    (msg) => Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding: EdgeInsets.all(3),
-                      child:
-                          (login.get('userid') != CurrentUName)
-                              ? Text(msg)
-                              : Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(msg),
-                              ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(padding: const EdgeInsets.all(2.0), child: TextMsg),
-            Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: FloatingActionButton(
-                //hoverColor: Colors.redAccent.shade400,
-                onPressed: () {
-                  //var msg = new ResponseMessage();
-                  //msg.Alert(context, "ข้อความ", '${txtMsg.text}');
-
-                  if (txtMsg.text.trim() != "") {
-                    setState(() {
-                      //msgList?.add(txtMsg.text);
-
-                      socket.emit("msg", {
-                        "username": login.get('userid'),
-                        "msg": txtMsg.text,
-                      });
-                      txtMsg.clear();
-                      //txtMsg.text = '';
-                    });
-                  }
-                },
-                tooltip: 'Send',
-                child: Icon(Icons.chat_sharp),
-              ),
-            ),
-          ],
+    return CircleAvatar(
+      backgroundColor: avatarColor,
+      radius: 18,
+      child: Text(
+        firstLetter,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
         ),
       ),
     );
   }
 
-  Widget CardChat() {
-    return Column(
-      children: List.from(
-        msgList!.map(
-          (msg) => Container(
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.all(3),
-            child: Text(
-              msg,
-              textAlign:
-                  (login.get('userid') != CurrentUName)
-                      ? TextAlign.left
-                      : TextAlign.right,
+  Widget buildMessageItem(Map<String, dynamic> item) {
+    final sender = item['username'] ?? '';
+    final msgText = item['msg'] ?? '';
+    final timestamp = item['timestamp'] as int?;
+    final myUserid = login?.get('userid') ?? '';
+    final isMe = myUserid == sender;
+    final timeStr = formatTimestamp(timestamp);
+
+    if (isMe) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (timeStr.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(right: 6, bottom: 2),
+                child: Text(
+                  timeStr,
+                  style: const TextStyle(color: Colors.white38, fontSize: 10),
+                ),
+              ),
+            Flexible(
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.72,
+                ),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF4A4A4A),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.zero,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 14,
+                ),
+                child: Text(
+                  msgText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.3,
+                  ),
+                ),
+              ),
             ),
+          ],
+        ),
+      );
+    } else {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildAvatar(sender),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    sender,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.65,
+                          ),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF2E2E2E),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.zero,
+                              topRight: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
+                              bottomRight: Radius.circular(16),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 14,
+                          ),
+                          child: Text(
+                            msgText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (timeStr.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6, bottom: 2),
+                          child: Text(
+                            timeStr,
+                            style: const TextStyle(
+                              color: Colors.white38,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    socket?.disconnect();
+    socket?.dispose();
+    txtMsg.dispose();
+    _focus.dispose();
+    listviewcontroller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isDbLoading || login == null) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF1E1E1E),
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+
+    final myUserid = login?.get('userid') ?? 'Guest';
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xFF1E1E1E),
+        appBar: AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'กลุ่มเร่งรัดงบประมาณ',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                'ผู้ใช้: $myUserid (ออนไลน์ในกลุ่ม: $groupUserCount คน)',
+                style: const TextStyle(fontSize: 11, color: Colors.white70),
+              ),
+            ],
           ),
+          backgroundColor: const Color(0xFF151515),
+          elevation: 1,
+        ),
+        body: Column(
+          children: [
+            if (!isConnected)
+              GestureDetector(
+                onTap: () {
+                  dev.log(
+                    "==> Manual Reconnect Triggered",
+                    name: "CHAT_SOCKET",
+                  );
+                  socket?.connect();
+                },
+                child: Container(
+                  color: Colors.red.shade900,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 16,
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (แตะเพื่อเชื่อมต่อใหม่)",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (connectionError.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            connectionError,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            Expanded(
+              child: ListView.builder(
+                controller: listviewcontroller,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 8,
+                ),
+                itemCount: msgList.length,
+                itemBuilder: (context, index) {
+                  return buildMessageItem(msgList[index]);
+                },
+              ),
+            ),
+            Container(
+              color: const Color(0xFF151515),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 8.0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      style: const TextStyle(color: Colors.white),
+                      focusNode: _focus,
+                      controller: txtMsg,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 10.0,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFF2E2E2E),
+                        hintText: "พิมพ์ข้อความ...",
+                        hintStyle: const TextStyle(color: Colors.white38),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onSubmitted: (_) => sendMessage(),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  CircleAvatar(
+                    backgroundColor: Colors.blue.shade700,
+                    radius: 20,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      onPressed: sendMessage,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

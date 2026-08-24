@@ -1,7 +1,6 @@
 import '../screens/theme/theme_provider.dart';
 import 'package:budget_mobile/admin/ShowAccDetail.dart';
 import 'package:budget_mobile/budget/ShowStartBook.dart';
-import 'package:budget_mobile/styles/colors.dart';
 import 'package:flutter/material.dart';
 import '../MainPage.dart';
 //import '../TestSJComponet.dart';
