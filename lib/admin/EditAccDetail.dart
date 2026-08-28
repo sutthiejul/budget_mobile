@@ -487,24 +487,83 @@ class _EditAccDetailState extends State<EditAccDetail> {
             context: context,
             builder:
                 (BuildContext context) => AlertDialog(
-                  title: const Text('ยืนยันการลบ'),
-                  content: const Text('กรุณายืนยันการลบ ???'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      20.0,
+                    ), // ทำขอบ Dialog ให้โค้งมน
+                  ),
+                  title: Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.red,
+                        size: 28,
+                      ), // เพิ่มไอคอนแจ้งเตือน
+                      const SizedBox(width: 8),
+                      Text(
+                        'ยืนยันการลบ',
+                        style: styleHead1.copyWith(
+                          color: Colors.red,
+                        ), // ใช้ฟอนต์ที่มีอยู่และปรับเป็นสีแดง
+                      ),
+                    ],
+                  ),
+                  content: Text(
+                    'คุณแน่ใจหรือไม่ที่จะลบข้อมูลผู้ใช้นี้?\nหากลบแล้วจะไม่สามารถกู้คืนได้',
+                    style: styleNormal,
+                  ),
+                  actionsPadding: const EdgeInsets.only(
+                    bottom: 16,
+                    right: 16,
+                    left: 16,
+                  ),
+                  actionsAlignment:
+                      MainAxisAlignment.spaceEvenly, // จัดปุ่มให้ห่างเท่าๆ กัน
                   actions: [
+                    // ปุ่ม ยกเลิก
                     TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            Colors.grey.shade300, // สีพื้นหลังปุ่มยกเลิก
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
                       onPressed: () {
-                        //=========delete=============
-                        // check input
-                        //bool chk = true;
-                        bool chk1 = false;
+                        Navigator.of(context).pop(); // ปิดหน้าต่าง Dialog
+                      },
+                      child: Text(
+                        'ยกเลิก',
+                        style: styleNormal.copyWith(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    // ปุ่ม ยืนยัน
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.red, // สีพื้นหลังปุ่มยืนยัน
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(
+                          context,
+                        ).pop(); // ปิด Dialog ยืนยันก่อนทำงานต่อไป
 
+                        //========= เริ่มกระบวนการลบ (Logic เดิม) =============
+                        bool chk1 = widget.aid != '';
                         ResponseMessage amsg = new ResponseMessage();
-
-                        // check form
-                        if (widget.aid == '') {
-                          chk1 = false;
-                        } else {
-                          chk1 = true;
-                        }
 
                         if (chk1 == false) {
                           amsg.Alert(
@@ -513,7 +572,6 @@ class _EditAccDetailState extends State<EditAccDetail> {
                             "กรุณาเลือกข้อมูลให้ครบ!!!",
                           );
                         } else if (chk1 == true) {
-                          //====== check login=============
                           MySQLDB mysql = MySQLDB();
 
                           var Dat = <String, dynamic>{};
@@ -528,7 +586,6 @@ class _EditAccDetailState extends State<EditAccDetail> {
                               msg = "ผิดพลาดในการลบ : ${ret["msg"]} ";
                             } else if (ret["result"] == "true") {
                               msg = "ลบข้อมูลเรียบร้อยแล้ว";
-
                               log("Status Delete : $msg");
                             }
 
@@ -545,36 +602,18 @@ class _EditAccDetailState extends State<EditAccDetail> {
                           });
                         }
                         //============================
-                        //Navigator.of(context).pop();
-
-                        // Navigator.pushReplacement(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => ShowAccount(),
-                        //   ),
-                        // );
-
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => ShowAccount(),
-                        //   ),
-                        // );
                       },
-                      child: const Text('OK'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Cancel'),
+                      child: Text(
+                        'ยืนยัน',
+                        style: styleNormal.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-          ).then((retval) {
-            if (retval != null) {}
-          });
-          //========================================
+          );
         },
         child: Text(
           "ลบ",
@@ -625,69 +664,55 @@ class _EditAccDetailState extends State<EditAccDetail> {
 
     _focus.requestFocus();
     return Scaffold(
-      // help protect bottom  overflow display
-      resizeToAvoidBottomInset: false,
+      // แนะนำให้เอา resizeToAvoidBottomInset: false ออก เพื่อให้คีย์บอร์ดดันหน้าจอขึ้นได้
       backgroundColor: lightpurple,
       appBar: AppBar(
-        //title: Text(widget.title),
         title: Text("ปรับปรุงข้อมูลผู้ใช้", style: styleHeadWhite4),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          //mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text('รายละเอียด Account', style: styleHeadPurple),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [Text('')],
-            // ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 130,
-                    child: Text('UserId', style: styleHead1),
-                  ),
-                  SizedBox(width: 10),
-                  SizedBox(child: userField, width: 200),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 130,
-                    child: Text('Password(>=6)', style: styleHead1),
-                  ),
-                  SizedBox(width: 10),
-                  SizedBox(child: passwordField, width: 200),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 100,
-                    child: Text('หน่วยงาน', style: styleHead1),
-                  ),
-                  SizedBox(width: 10),
-                  Column(
-                    //mainAxisAlignment: MainAxisAlignment.center,
-                    //crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        // Make the visible frame rounded by using BoxDecoration
-                        // instead of the Container `color` property.
-                        // Add padding so the dropdown contents have breathing room.
-                        // Give a fixed width so the DropdownButton (isExpanded=true)
-                        // has bounded constraints and won't cause layout errors.
-                        width: 250,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Text('รายละเอียด Account', style: styleHeadPurple),
+                const SizedBox(height: 16),
+
+                // UserId
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 130,
+                      child: Text('UserId', style: styleHead1),
+                    ),
+                    Expanded(
+                      child: userField,
+                    ), // ใช้ Expanded แทนการกำหนด width
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Password
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 130,
+                      child: Text('Password(>10)', style: styleHead1),
+                    ),
+                    Expanded(child: passwordField),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // หน่วยงาน
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 130,
+                      child: Text('หน่วยงาน', style: styleHead1),
+                    ),
+                    Expanded(
+                      child: Container(
                         decoration: BoxDecoration(
                           color: white,
                           borderRadius: BorderRadius.circular(10),
@@ -695,69 +720,62 @@ class _EditAccDetailState extends State<EditAccDetail> {
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: ddlUnit(unitList),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
 
-            // Container(
-            //   child: ddlUnit(unitList),
-            //   color: white,
-            // ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 100,
-                    child: Text('ยศ ชื่อ-สกุล', style: styleHead1),
-                  ),
-                  SizedBox(width: 10),
-                  SizedBox(child: firstnameField, width: 250),
+                // ยศ ชื่อ-สกุล
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 130,
+                      child: Text('ยศ ชื่อ-สกุล', style: styleHead1),
+                    ),
+                    Expanded(child: firstnameField),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // นามสกุล
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 130,
+                      child: Text('นามสกุล', style: styleHead1),
+                    ),
+                    Expanded(child: lastnameField),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // มือถือ
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 130,
+                      child: Text('มือถือ', style: styleHead1),
+                    ),
+                    Expanded(child: mobileField),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // ปุ่ม บันทึก
+                updateButton,
+                const SizedBox(height: 8.0),
+
+                // ปุ่ม ลบ (ซ่อน/แสดง ตามสถานะ)
+                if (login?.get('status') == '1') ...[
+                  deleteButton,
+                  const SizedBox(height: 8.0),
                 ],
-              ),
+
+                // ปุ่ม ย้อนกลับ
+                backButon,
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 100,
-                    child: Text('นามสกุล', style: styleHead1),
-                  ),
-                  SizedBox(width: 10),
-                  SizedBox(child: lastnameField, width: 250),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 100,
-                    child: Text('มือถือ', style: styleHead1),
-                  ),
-                  SizedBox(width: 10),
-                  SizedBox(child: mobileField, width: 250),
-                ],
-              ),
-            ),
-            // Visibility(visible: false, child: textStatus),
-            const SizedBox(height: 4.0),
-            Padding(padding: const EdgeInsets.all(4.0), child: updateButton),
-            const SizedBox(height: 4.0),
-            //login?.get('status') == '1' ? deleteButton : Text(''),
-            login?.get('status') == '1'
-                ? Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: deleteButton,
-                )
-                : const SizedBox(height: 4.0),
-            const SizedBox(height: 4.0),
-            Padding(padding: const EdgeInsets.all(4.0), child: backButon),
-          ],
+          ),
         ),
       ),
     );

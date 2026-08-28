@@ -4,6 +4,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../global/globalVar.dart';
 import '../global/ManageLogin.dart';
 import 'package:budget_mobile/helper/DatabaseHelper.dart';
+import 'package:budget_mobile/screens/theme/theme_provider.dart'; // เพิ่มการ import ThemeProvider
 
 var login;
 
@@ -401,146 +402,161 @@ class _ChatPersonState extends State<ChatPerson> {
 
   @override
   Widget build(BuildContext context) {
-    if (isDbLoading || login == null) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF1E1E1E),
-        body: Center(child: CircularProgressIndicator(color: Colors.white)),
-      );
-    }
-
-    final myUserid = login?.get('userid') ?? 'Guest';
-
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFF1E1E1E),
-        appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'กลุ่มเร่งรัดงบประมาณ',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                'ผู้ใช้: $myUserid (ออนไลน์ในกลุ่ม: $groupUserCount คน)',
-                style: const TextStyle(fontSize: 11, color: Colors.white70),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF151515),
-          elevation: 1,
-        ),
-        body: Column(
-          children: [
-            if (!isConnected)
-              GestureDetector(
-                onTap: () {
-                  dev.log(
-                    "==> Manual Reconnect Triggered",
-                    name: "CHAT_SOCKET",
-                  );
-                  socket?.connect();
-                },
-                child: Container(
-                  color: Colors.red.shade900,
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 6,
-                    horizontal: 16,
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (แตะเพื่อเชื่อมต่อใหม่)",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (connectionError.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            connectionError,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            Expanded(
-              child: ListView.builder(
-                controller: listviewcontroller,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 8,
-                ),
-                itemCount: msgList.length,
-                itemBuilder: (context, index) {
-                  return buildMessageItem(msgList[index]);
-                },
-              ),
+    // นำ ListenableBuilder มาครอบในส่วนของการ build เพื่อให้ UI อัปเดตตาม Theme
+    return ListenableBuilder(
+      listenable: ThemeProvider.instance,
+      builder: (context, child) {
+        if (isDbLoading || login == null) {
+          return Scaffold(
+            backgroundColor:
+                ThemeProvider
+                    .activeBgcolorTitlebar, // อัปเดตสีพื้นหลังตอนโหลดข้อมูล
+            body: const Center(
+              child: CircularProgressIndicator(color: Colors.white),
             ),
-            Container(
-              color: const Color(0xFF151515),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 8.0,
-              ),
-              child: Row(
+          );
+        }
+
+        final myUserid = login?.get('userid') ?? 'Guest';
+
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor:
+                ThemeProvider
+                    .activeBgcolorTitlebar, // อัปเดตสีพื้นหลัง Scaffold
+            appBar: AppBar(
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      style: const TextStyle(color: Colors.white),
-                      focusNode: _focus,
-                      controller: txtMsg,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 10.0,
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFF2E2E2E),
-                        hintText: "พิมพ์ข้อความ...",
-                        hintStyle: const TextStyle(color: Colors.white38),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24.0),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      onSubmitted: (_) => sendMessage(),
+                  const Text(
+                    'กลุ่มเร่งรัดงบประมาณ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 8.0),
-                  CircleAvatar(
-                    backgroundColor: Colors.blue.shade700,
-                    radius: 20,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                      onPressed: sendMessage,
-                    ),
+                  Text(
+                    'ผู้ใช้: $myUserid (ออนไลน์ในกลุ่ม: $groupUserCount คน)',
+                    style: const TextStyle(fontSize: 11, color: Colors.white70),
                   ),
                 ],
               ),
+              backgroundColor:
+                  ThemeProvider.activeBgcolorApp, // อัปเดตสีพื้นหลัง AppBar
+              elevation: 1,
             ),
-          ],
-        ),
-      ),
+            body: Column(
+              children: [
+                if (!isConnected)
+                  GestureDetector(
+                    onTap: () {
+                      dev.log(
+                        "==> Manual Reconnect Triggered",
+                        name: "CHAT_SOCKET",
+                      );
+                      socket?.connect();
+                    },
+                    child: Container(
+                      color: Colors.red.shade900,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 16,
+                      ),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (แตะเพื่อเชื่อมต่อใหม่)",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (connectionError.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                connectionError,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: listviewcontroller,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 8,
+                    ),
+                    itemCount: msgList.length,
+                    itemBuilder: (context, index) {
+                      return buildMessageItem(msgList[index]);
+                    },
+                  ),
+                ),
+                Container(
+                  color: const Color(
+                    0xFF151515,
+                  ), // สามารถพิจารณาเปลี่ยนสี Container ตรงส่วนพิมพ์ข้อความเพิ่มเติมได้หากต้องการ
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          style: const TextStyle(color: Colors.white),
+                          focusNode: _focus,
+                          controller: txtMsg,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 10.0,
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFF2E2E2E),
+                            hintText: "พิมพ์ข้อความ...",
+                            hintStyle: const TextStyle(color: Colors.white38),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24.0),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          onSubmitted: (_) => sendMessage(),
+                        ),
+                      ),
+                      const SizedBox(width: 8.0),
+                      CircleAvatar(
+                        backgroundColor: Colors.blue.shade700,
+                        radius: 20,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          onPressed: sendMessage,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
